@@ -1,6 +1,6 @@
 # wechat-analyser
 
-> 微信聊天记录查看、分析工具
+> 微信聊天记录查看、分析工具。
 
 #### Build Setup
 
