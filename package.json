@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "author": "王士江 <wangshijiang@icourt.cc>",
   "description": "微信聊天记录查看、分析工具",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js",
@@ -23,7 +23,8 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "npm run lint:fix",
+    "start": "npm run dev"
   },
   "dependencies": {
     "vue": "^2.3.3",
