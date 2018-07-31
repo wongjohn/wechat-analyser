@@ -6,7 +6,10 @@
         <span class="title">
           Welcome to your new project!
         </span>
-        <system-information></system-information>
+        <ul>
+          <li>{{productName}}</li>
+          <li v-for="contact in contacts" :key='contact.userName'>{{contact.userName}}</li>
+        </ul>
       </div>
 
       <div class="right-side">
@@ -30,21 +33,32 @@
 </template>
 
 <script>
-  import SystemInformation from './LandingPage/SystemInformation';
+  import WechatService from '../wechat-service';
 
   export default {
     name: 'landing-page',
-    components: { SystemInformation },
+    components: {},
+    data() {
+      return {
+        contacts: [],
+        productName: '',
+      };
+    },
     methods: {
       open(link) {
         this.$electron.shell.openExternal(link);
       },
     },
+    mounted() {
+      setTimeout(() => {
+        this.contacts = WechatService.getContacts();
+      }, 5000);
+      this.productName = WechatService.getProductName();
+    },
   };
 </script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
   * {
     box-sizing: border-box;
@@ -52,7 +66,7 @@
     padding: 0;
   }
 
-  body { font-family: 'Source Sans Pro', sans-serif; }
+  body { font-family: '微软雅黑', '宋体'; }
 
   #wrapper {
     background:

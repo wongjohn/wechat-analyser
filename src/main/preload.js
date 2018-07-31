@@ -1,0 +1,3 @@
+// Do nothing
+
+window.WechatService = {};
