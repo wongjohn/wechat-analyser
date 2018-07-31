@@ -6,8 +6,8 @@
 
 <script>
   export default {
-    name: 'wechat-analyser'
-  }
+    name: 'wechat-analyser',
+  };
 </script>
 
 <style>
