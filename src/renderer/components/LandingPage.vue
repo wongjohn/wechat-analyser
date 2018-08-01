@@ -54,14 +54,21 @@
     },
     methods: {},
     mounted() {
-      setTimeout(() => {
-        this.allContacts = WechatService.getContacts() || [];
-        this.allChatSessions = WechatService.getChatSessions() || [];
-        WechatService.loadChatsOf('Chat_c196266f837d14e0b693f961bee37b66')
-          .then((chats) => {
-            this.chats = chats;
-          });
-      }, 1000);
+      WechatService.getMessageAndContactFileID()
+        .then(({ messageFileID, contactFileID }) => {
+          WechatService.getUserContacts(contactFileID)
+            .then((contacts) => {
+              this.allContacts = contacts || [];
+            });
+          WechatService.getUserChatSessions(messageFileID)
+            .then((chatSessions) => {
+              this.allChatSessions = chatSessions;
+              WechatService.loadChatsOf('Chat_c196266f837d14e0b693f961bee37b66')
+                .then((chats) => {
+                  this.chats = chats;
+                });
+            });
+        });
       this.productName = WechatService.getProductName();
     },
   };
