@@ -1,31 +1,27 @@
 <template>
   <div id="wrapper">
-    <img id="logo" src="~@/assets/logo.png" alt="electron-vue">
     <main>
       <div class="left-side">
         <span class="title">
           当前设备： {{productName}}
         </span>
         <ul class="contacts">
-          <li v-for="contact in contacts" :key='contact.userName'>{{contact.userName}} {{contact.dbContactRemark}}</li>
+          <li v-for="contact in contacts" :key='contact.userName'>
+            <span class="username">{{contact.userName}}</span> 
+            <span class="contact-remark">{{contact.dbContactRemark}}</span>
+          </li>
         </ul>
       </div>
 
       <div class="right-side">
-        <div class="doc">
-          <div class="title">Getting Started</div>
-          <p>
-            electron-vue comes packed with detailed documentation that covers everything from
-            internal configurations, using the project structure, building your application,
-            and so much more.
-          </p>
-          <button @click="open('https://simulatedgreg.gitbooks.io/electron-vue/content/')">Read the Docs</button><br><br>
-        </div>
-        <div class="doc">
-          <div class="title alt">Other Documentation</div>
-          <button class="alt" @click="open('https://electron.atom.io/docs/')">Electron</button>
-          <button class="alt" @click="open('https://vuejs.org/v2/guide/')">Vue.js</button>
-        </div>
+        <ul class="chat-sessions">
+          <li v-for="chatSession in chatSessions" :key="chatSession.name">{{chatSession.name}}</li>
+        </ul>
+      </div>
+      <div class="chats">
+        <ul>
+          <li v-for="chat in chats" :key="chat.MesSvrID">{{chat.Message}}</li>
+        </ul>
       </div>
     </main>
   </div>
@@ -41,21 +37,30 @@
       return {
         allContacts: [],
         productName: '',
+        allChatSessions: [],
+        chats: [],
       };
     },
     computed: {
       contacts() {
-        return this.allContacts.filter((item, index) => index < 10);
+        return this.allContacts.filter((item, index) => {
+          item.dbContactRemark = Buffer.from(item.dbContactRemark).toString();
+          return index < 20;
+        });
+      },
+      chatSessions() {
+        return this.allChatSessions.filter((item, index) => index < 20);
       },
     },
-    methods: {
-      open(link) {
-        this.$electron.shell.openExternal(link);
-      },
-    },
+    methods: {},
     mounted() {
       setTimeout(() => {
-        this.allContacts = WechatService.getContacts();
+        this.allContacts = WechatService.getContacts() || [];
+        this.allChatSessions = WechatService.getChatSessions() || [];
+        WechatService.loadChatsOf('Chat_c196266f837d14e0b693f961bee37b66')
+          .then((chats) => {
+            this.chats = chats;
+          });
       }, 1000);
       this.productName = WechatService.getProductName();
     },
@@ -120,30 +125,15 @@
     margin-bottom: 10px;
   }
 
-  .doc p {
-    color: black;
-    margin-bottom: 10px;
+  .contacts, .chat-sessions {
+    list-style: none;
   }
 
-  .doc button {
-    font-size: .8em;
-    cursor: pointer;
-    outline: none;
-    padding: 0.75em 2em;
-    border-radius: 2em;
-    display: inline-block;
-    color: #fff;
-    background-color: #4fc08d;
-    transition: all 0.15s ease;
-    box-sizing: border-box;
-    border: 1px solid #4fc08d;
+  .contacts .username {
+    color: #3ba776;
   }
 
-  .doc button.alt {
-    color: #42b983;
-    background-color: transparent;
-  }
-  .contacts {
-    
+  .contacts .contact-remark {
+    color: #496988;
   }
 </style>
