@@ -11,3 +11,5 @@ thumbs.db
 !.gitkeep
 .vs-code/
 .idea/
+yarn-error.log
+yarn-error.log.*
