@@ -4,11 +4,10 @@
     <main>
       <div class="left-side">
         <span class="title">
-          Welcome to your new project!
+          当前设备： {{productName}}
         </span>
-        <ul>
-          <li>{{productName}}</li>
-          <li v-for="contact in contacts" :key='contact.userName'>{{contact.userName}}</li>
+        <ul class="contacts">
+          <li v-for="contact in contacts" :key='contact.userName'>{{contact.userName}} {{contact.dbContactRemark}}</li>
         </ul>
       </div>
 
@@ -40,9 +39,14 @@
     components: {},
     data() {
       return {
-        contacts: [],
+        allContacts: [],
         productName: '',
       };
+    },
+    computed: {
+      contacts() {
+        return this.allContacts.filter((item, index) => index < 10);
+      },
     },
     methods: {
       open(link) {
@@ -51,8 +55,8 @@
     },
     mounted() {
       setTimeout(() => {
-        this.contacts = WechatService.getContacts();
-      }, 5000);
+        this.allContacts = WechatService.getContacts();
+      }, 1000);
       this.productName = WechatService.getProductName();
     },
   };
@@ -138,5 +142,8 @@
   .doc button.alt {
     color: #42b983;
     background-color: transparent;
+  }
+  .contacts {
+    
   }
 </style>
