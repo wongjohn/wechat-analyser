@@ -80,8 +80,8 @@ function getUserChatSessions(messageFileID) {
       sqlite3.OPEN_READONLY);
 
     db.all(`
-    SELECT name FROM sqlite_master WHERE type="table" and name like "Chat_%"
-          `, (error, rows) => {
+    SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Chat_%'
+    AND name NOT LIKE 'ChatExt%'`, (error, rows) => {
       if (!error) {
         chats = rows;
         resolve(rows);

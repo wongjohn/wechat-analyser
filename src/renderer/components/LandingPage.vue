@@ -15,12 +15,14 @@
 
       <div class="right-side">
         <ul class="chat-sessions">
-          <li v-for="chatSession in chatSessions" :key="chatSession.name">{{chatSession.name}}</li>
+          <li v-for="chatSession in chatSessions" :key="chatSession.name" @click="viewChatsOf(chatSession.name)">
+            {{chatSession.name}}
+          </li>
         </ul>
       </div>
       <div class="chats">
         <ul>
-          <li v-for="chat in chats" :key="chat.MesSvrID">{{chat.Message}}</li>
+          <li v-for="(chat, index) in chats" :key="index">{{chat.Message}}</li>
         </ul>
       </div>
     </main>
@@ -52,7 +54,14 @@
         return this.allChatSessions.filter((item, index) => index < 20);
       },
     },
-    methods: {},
+    methods: {
+      viewChatsOf(chatSessionName) {
+        WechatService.loadChatsOf(chatSessionName)
+          .then((chats) => {
+            this.chats = chats;
+          });
+      },
+    },
     mounted() {
       WechatService.getMessageAndContactFileID()
         .then(({ messageFileID, contactFileID }) => {
@@ -63,10 +72,6 @@
           WechatService.getUserChatSessions(messageFileID)
             .then((chatSessions) => {
               this.allChatSessions = chatSessions;
-              WechatService.loadChatsOf('Chat_c196266f837d14e0b693f961bee37b66')
-                .then((chats) => {
-                  this.chats = chats;
-                });
             });
         });
       this.productName = WechatService.getProductName();
@@ -142,5 +147,9 @@
 
   .contacts .contact-remark {
     color: #496988;
+  }
+
+  .chat-sessions li {
+    cursor: pointer;
   }
 </style>
