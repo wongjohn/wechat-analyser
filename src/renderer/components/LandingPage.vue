@@ -51,7 +51,7 @@
                   <div class="ichat-detail-h-w">
                     <div class="ichat-header">
                       <div class="ichat-header-user">
-                        <h2 title="研究所&amp;测试"> 研究所&amp;测试 <span>(32)</span></h2>
+                        <h2 title="微信聊天记录"> 微信聊天记录 <span>(32)</span></h2>
                       </div>
                       <div class="ichat-header-menu">
                         <a><i class="icon iui-icon iui-icon-more"></i></a>
@@ -299,6 +299,7 @@
     box-sizing: border-box;
   }
   .ichat-chat-conversation-search {
+    -webkit-app-region: drag;
     border-bottom: 1px solid #f0f0f0;
     overflow: hidden;
   }
@@ -429,6 +430,7 @@
     position: relative;
   }
   .ichat-detail-h-w {
+    -webkit-app-region: drag;
     height: 53px;
     border-bottom: 1px solid #f0f0f0;
     background: #fff;
