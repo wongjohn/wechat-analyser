@@ -181,12 +181,7 @@
 
 <style>
   .main {
-    background:
-      radial-gradient(
-        ellipse at top left,
-        rgba(255, 255, 255, 1) 40%,
-        rgba(229, 229, 229, .9) 100%
-      );
+    background: #fff;
     height: 100vh;
     padding-left: 70px;
   }
