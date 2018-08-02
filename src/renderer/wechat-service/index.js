@@ -4,6 +4,7 @@ const os = require('os');
 const path = require('path');
 const plist = require('plist');
 const sqlite3 = require('sqlite3').verbose();
+const md5 = require('md5');
 
 const PATH = path.resolve(os.homedir(), C.ROOT_DIR, '7a99001c2b3b7136d02a561ad1815a7a4d156b9a');
 const InfoPlist = plist.parse(fs.readFileSync(path.resolve(PATH, C.INFO_PLIST_FILE), 'utf8'));
@@ -12,6 +13,7 @@ let messageFileID; // 消息文件ID
 let contactFileID; // 通讯录文件ID
 let contacts; // 通讯录
 let chats; // 聊天
+let contactsHashObject; // 使用Hash形式、读取内容
 
 /**
  * 消息文件ID/通讯录文件ID
@@ -45,6 +47,41 @@ function getMessageAndContactFileID() {
 }
 
 /**
+ * 抽取有效名称
+ * 例1： remark 取值：[10, 14, 81, 81, 233, 130, 174, 231, 174, 177, 230, 143, 144, 233, 134, 146]
+ * remark[0]值——"10"——是指示位，remark[1]值"14"是长度，
+ * 后面14个字节remark[2:16]取值[81, 81, 233, 130, 174, 231, 174, 177, 230, 143, 144, 233, 134, 146]，
+ * 使用Buffer.from([81, 81, 233, 130, 174, 231, 174, 177, 230, 143, 144, 233, 134, 146]).toString()
+ * 结果为"QQ邮箱提醒"
+ * 例2： remark 取值：[10, 6, 231, 159, 179, 231, 142, 143, 18, 8, 115, 104, 105, 108, 101, 48, 49, 48,
+ *        26, 0, 34, 0, 42, 0, 50, 5, 115, 104, 105, 108, 101, 58, 0, 66, 0]
+ * (1) remark[0]值"10"是指示位，remark[1]值"6"是长度，
+ * 后面6个字节remark[2:7]取值[231, 159, 179, 231, 142, 143]，
+ * 使用Buffer.from([231, 159, 179, 231, 142, 143]).toString()
+ * 结果为"石玏"
+ * (2) remark[8]值——"18"——是指示位，remark[9]值"8"是长度，
+ * 后面8个字节remark[10:17]取值[115, 104, 105, 108, 101, 48, 49, 48]，
+ * 使用Buffer.from([115, 104, 105, 108, 101, 48, 49, 48]).toString()
+ * 结果为"shile010"
+ * (3) remark[18]值——"26"——是指示位, remark[19]值"0"是长度
+ * (4) remark[20]值——"34"——是指示位, remark[21]值"0"是长度
+ * (5) remark[22]值——"42"——是指示位, remark[23]值"0"是长度
+ * (6) remark[24]值——"50"——是指示位, remark[25]值"5"是长度
+ * 后面5个字节remark[26:30]取值[115, 104, 105, 108, 101]，
+ * 使用Buffer.from([115, 104, 105, 108, 101]).toString()
+ * 结果为"shile"
+ * (7) remark[31]值——"58"——是指示位, remark[32]值"0"是长度
+ * (8) remark[33]值——"66"——是指示位, remark[34]值"0"是长度
+ * @param remark
+ */
+function parseName(remark) {
+  // remark[0] is 0x0a
+  const length = remark[1];
+  const offset = 2;
+  return Buffer.from(remark.slice(offset, offset + length)).toString();
+}
+
+/**
  * 根据contactFileID、获取通讯录
  * @param contactFileID
  */
@@ -58,6 +95,11 @@ function getUserContacts(contactFileID) {
           SELECT userName, dbContactRemark, dbContactProfile, dbContactChatRoom FROM Friend
           `, (error, rows) => {
       if (!error) {
+        contactsHashObject = {}; // Init
+        rows.forEach((row) => {
+          row.hashName = md5(row.userName);
+          contactsHashObject[row.hashName] = row;
+        });
         contacts = rows;
         resolve(rows);
       } else {
@@ -125,6 +167,10 @@ export default {
   },
   getContacts() {
     return contacts;
+  },
+  parseName,
+  getContactsHashObject() {
+    return contactsHashObject;
   },
   getChatSessions() {
     return chats;

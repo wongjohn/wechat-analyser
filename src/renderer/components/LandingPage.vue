@@ -8,15 +8,18 @@
         <ul class="contacts">
           <li v-for="contact in contacts" :key='contact.userName'>
             <span class="username">{{contact.userName}}</span> 
-            <span class="contact-remark">{{contact.dbContactRemark}}</span>
+            <span class="contact-remark">{{parseName(contact.dbContactRemark)}}</span>
           </li>
         </ul>
       </div>
 
       <div class="right-side">
         <ul class="chat-sessions">
-          <li v-for="chatSession in chatSessions" :key="chatSession.name" @click="viewChatsOf(chatSession.name)">
-            {{chatSession.name}}
+          <li v-for="chatSession in chatSessions"
+            :key="chatSession.name"
+            @click="viewChatsOf(chatSession.name)"
+          >
+            {{getNickname(chatSession.name)}}
           </li>
         </ul>
       </div>
@@ -41,14 +44,12 @@
         productName: '',
         allChatSessions: [],
         chats: [],
+        contactsHashObject: {},
       };
     },
     computed: {
       contacts() {
-        return this.allContacts.filter((item, index) => {
-          item.dbContactRemark = Buffer.from(item.dbContactRemark).toString();
-          return index < 20;
-        });
+        return this.allContacts.filter((item, index) => index < 20);
       },
       chatSessions() {
         return this.allChatSessions.filter((item, index) => index < 20);
@@ -61,6 +62,17 @@
             this.chats = chats;
           });
       },
+      getNickname(chatRoomName) {
+        let destination = chatRoomName.substring('Chat_'.length, chatRoomName.length);
+        if (this.contactsHashObject[destination]) {
+          destination = this.contactsHashObject[destination];
+          return WechatService.parseName(destination.dbContactRemark);
+        }
+        return destination;
+      },
+      parseName(remark) {
+        return WechatService.parseName(remark);
+      },
     },
     mounted() {
       WechatService.getMessageAndContactFileID()
@@ -68,6 +80,7 @@
           WechatService.getUserContacts(contactFileID)
             .then((contacts) => {
               this.allContacts = contacts || [];
+              this.contactsHashObject = WechatService.getContactsHashObject();
             });
           WechatService.getUserChatSessions(messageFileID)
             .then((chatSessions) => {
@@ -151,5 +164,9 @@
 
   .chat-sessions li {
     cursor: pointer;
+  }
+
+  .chats {
+    width: 200px;
   }
 </style>
