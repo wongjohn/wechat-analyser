@@ -41,7 +41,7 @@
                             @click="viewChatsOf(chatSession.name)"
                           >
                             <div class="img group">
-                              <img src="https://im.alphalawyer.cn/im/v1/imgs/group_head/32518a84-bd66-4199-b1a2-4527b8d5a8af.png?token=eyJhbGciOiJIUzI1NiJ9.eyJvZmZpY2VfaWQiOiI0ZDc5MmUzMTZhMDUxMWU2YWE3NjAwMTYzZTE2MmFkZCIsImRldmljZVR5cGUiOiJ0ZWFtIiwib2ZmaWNlX25hbWUiOiJpQ291cnQiLCJ1c2VyX2lkIjoiRDk5QkUxNTAyQ0FEMTFFODg0Nzk0NDZBMkVEOURDQkQiLCJsb2dpblR5cGUiOiIxIiwidXNlcl9uYW1lIjoi546L5aOr5rGfIiwiaXNzIjoiaUxhdy5jb20iLCJleHAiOjE1MzM2OTYwNzQ3NzAsImlhdCI6MTUzMzA5MTI3NDc3MCwib2ZmaWNlVHlwZSI6ImludGVncmF0aW9uIn0.8nmwzTETmiky4inHiGF3WlDMfKhPfVF0h4-wpU4moZc" alt="">
+                              <img :src="getHeadImage(chatSession.name)">
                             </div>
                             <div class="txt">
                               <h2>{{getNickname(chatSession.name)}}</h2>
@@ -159,6 +159,14 @@
       },
       parseName(remark) {
         return WechatService.parseName(remark);
+      },
+      getHeadImage(chatRoomName) {
+        let destination = chatRoomName.substring('Chat_'.length, chatRoomName.length);
+        if (this.contactsHashObject[destination]) {
+          destination = this.contactsHashObject[destination];
+          return WechatService.parseImage(destination.dbContactHeadImage);
+        }
+        return destination;
       },
     },
     mounted() {

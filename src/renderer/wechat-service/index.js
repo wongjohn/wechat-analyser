@@ -82,6 +82,17 @@ function parseName(remark) {
 }
 
 /**
+ * 解析用户头像
+ * @param headImage
+ */
+function parseImage(headImage) {
+  if (headImage[3] !== 0) {
+    return Buffer.from(headImage.slice(4, headImage[3] + 5)).toString();
+  }
+  return '';
+}
+
+/**
  * 根据contactFileID、获取通讯录
  * @param contactFileID
  */
@@ -92,7 +103,7 @@ function getUserContacts(contactFileID) {
       sqlite3.OPEN_READONLY);
 
     db.all(`
-          SELECT userName, dbContactRemark, dbContactProfile, dbContactChatRoom FROM Friend
+          SELECT userName, dbContactRemark, dbContactProfile, dbContactChatRoom, dbContactHeadImage FROM Friend
           `, (error, rows) => {
       if (!error) {
         contactsHashObject = {}; // Init
@@ -169,6 +180,7 @@ export default {
     return contacts;
   },
   parseName,
+  parseImage,
   getContactsHashObject() {
     return contactsHashObject;
   },
