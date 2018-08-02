@@ -12,15 +12,6 @@
     <main class="main-c">
       <section>
         <div class="ichat">
-          <div class="ichat-menu">
-            <div class="vd-nav" style="width: 100%;">
-              <ul class="vd-nav-list">
-                <li class="router-link-exact-active router-link-active active"> 消息 </li>
-                <li class="router-link-exact-active router-link-active"> 联系人 </li>
-                <li class="router-link-exact-active router-link-active"> @我的 </li>
-              </ul>
-            </div>
-          </div>
           <div class="ichat-content">
             <div class="ichat-content-w">
               <div class="ichat-chat">
@@ -46,7 +37,7 @@
                             <div class="txt">
                               <h2>{{getNickname(chatSession.name)}}</h2>
                               <div class="p">
-                                <p>凡柳松撤回了一条消息</p>
+                                <p><!-- Latest Message --></p>
                               </div>
                             </div>
                           </li>
@@ -277,17 +268,6 @@
   .vd-my-task {
     height: 100%;
   }
-  .ichat-menu {
-    -webkit-app-region: drag;
-  }
-  .vd-nav {
-    -webkit-app-region: drag;
-    width: 100%;
-    height: 50px;
-    background: #f8f8f9;
-    border-bottom: 1px solid #dbdbdb;
-    box-sizing: border-box;
-  }
   .vd-nav-list {
     font-size: 15px;
     color: #9f9f9f;
@@ -309,8 +289,6 @@
   }
   .ichat-content {
     height: 100%;
-    padding-top: 50px;
-    margin-top: -50px;
     box-sizing: border-box;
   }
   .ichat-content-w {
