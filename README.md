@@ -2,7 +2,7 @@
 
 ## 运行时截图
 
-![微信聊天记录查看、分析工具](/src/renderer/screenshot-01.png)
+![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-01.png)
 
 > 仿照微信桌面端界面，制作的微信聊天记录查看、分析工具，用于查看、分析Mac OS下iTunes的微信聊天记录备份信息。
 
