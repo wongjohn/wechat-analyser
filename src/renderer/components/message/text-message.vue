@@ -16,12 +16,12 @@
                 <div class="ichat-message-ope"><!---->
                     <a class="iui-tooltip">
                         <i class="iui-icon iui-icon-pin"></i>
-                        <div class="iui-tooltip-c" style="margin-left: 0px;">钉</div>
+                        <div class="iui-tooltip-c" style="margin-left: 0px;">复制</div>
                     </a>
                     <a class="iui-tooltip">
                         <i class="iui-icon iui-icon-task-pad"></i>
                         <div class="iui-tooltip-c" style="margin-left: 0px;">
-                            转任务
+                            转Bug
                         </div>
                     </a>
                 </div>
