@@ -6,7 +6,7 @@ const plist = require('plist');
 const sqlite3 = require('sqlite3').verbose();
 const md5 = require('md5');
 
-const PATH = path.resolve(os.homedir(), C.ROOT_DIR, '61ec3d29f1323a98586ac2cb4fec3205932afa86');
+const PATH = path.resolve(os.homedir(), C.ROOT_DIR, '7a99001c2b3b7136d02a561ad1815a7a4d156b9a');
 const InfoPlist = plist.parse(fs.readFileSync(path.resolve(PATH, C.INFO_PLIST_FILE), 'utf8'));
 
 let messageFileID; // 消息文件ID
