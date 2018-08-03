@@ -52,7 +52,10 @@
                   <div class="ichat-detail-h-w">
                     <div class="ichat-header">
                       <div class="ichat-header-user">
-                        <h2 :title="selectedChatSessionInfo.displayName"> {{selectedChatSessionInfo.displayName}} <span>({{selectedChatSessionInfo.length}})</span></h2>
+                        <h2 :title="selectedChatSessionInfo.displayName">
+                          {{selectedChatSessionInfo.displayName}}
+                          <span>({{selectedChatSessionInfo.length}})</span>
+                        </h2>
                       </div>
                       <div class="ichat-header-menu">
                         <a><i class="icon iui-icon iui-icon-more"></i></a>
@@ -62,9 +65,12 @@
                   <div class="ichat-detail-c">
                     <section>
                       <div class="ichat-messages ichattypegroup">
-                        <ul>
+                        <ul v-if="chats.length">
                           <message v-for="chat in chats" :key="chat.MesLocalID" :chat="chat"/>
                         </ul>
+                        <div class="empty-message" v-if="!chats.length">
+                          没有消息
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -112,6 +118,7 @@
         this.selectedChatSessionInfo = {
           sessionName: chatSessionName,
           displayName: this.getNickname(chatSessionName),
+          length: 0,
         };
         WechatService.loadChatsOf(chatSessionName)
           .then((chats) => {
@@ -598,6 +605,12 @@
     top: 50%;
     margin: -21px 0 0 -15px;
     display: none;
+  }
+  .empty-message {
+    text-align: center;
+    font-size: 13px;
+    color: #ccc;
+    margin: 18px auto;
   }
   .contacts .username {
     color: #3ba776;
