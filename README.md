@@ -1,15 +1,19 @@
-# wechat-analyser
+# 微信聊天记录查看器
 
-> 微信聊天记录查看、分析工具。
+## 运行时截图
+
+![微信聊天记录查看、分析工具](/src/renderer/screenshot-01.png)
+
+> 仿照微信桌面端界面，制作的微信聊天记录查看、分析工具，用于查看、分析Mac OS下iTunes的微信聊天记录备份信息。
 
 #### Build Setup
 
 ``` bash
-# install dependencies
-npm install
+# install dependencies, 最好使用yarn install，本人试过: "cnpm install"在这里有问题，npm install则太慢
+yarn install
 
 # serve with hot reload at localhost:9080
-npm run dev
+npm start
 
 # build electron application for production
 npm run build
