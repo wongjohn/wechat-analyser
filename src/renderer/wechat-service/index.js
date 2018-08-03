@@ -184,6 +184,13 @@ export default {
   getContactsHashObject() {
     return contactsHashObject;
   },
+  getContactsUserNameMapObject() {
+    const contactsUserNameMapObject = {}; // Init
+    contacts.forEach((row) => {
+      contactsUserNameMapObject[row.userName] = row;
+    });
+    return contactsUserNameMapObject;
+  },
   getChatSessions() {
     return chats;
   },

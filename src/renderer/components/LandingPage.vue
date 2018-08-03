@@ -156,6 +156,11 @@
             .then((contacts) => {
               this.allContacts = contacts || [];
               this.contactsHashObject = WechatService.getContactsHashObject();
+              this.$store.commit('INIT_CONTACTS', {
+                contacts: this.allContacts,
+                contactsHashObject: this.contactsHashObject,
+                contactsUserNameMapObject: WechatService.getContactsUserNameMapObject(),
+              });
             });
           WechatService.getUserChatSessions(messageFileID)
             .then((chatSessions) => {
