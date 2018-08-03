@@ -1,10 +1,17 @@
 # 微信聊天记录查看器
 
+> 仿照微信桌面端界面，制作的微信聊天记录查看、分析工具。
+
 ## 运行时截图
+
+可以进行聊天记录历史查看，聊天记录复制、记录Bug等功能。
+
+![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-02.png)
+
+使用electron-vue进行开发
 
 ![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-01.png)
 
-> 仿照微信桌面端界面，制作的微信聊天记录查看、分析工具，用于查看、分析Mac OS下iTunes的微信聊天记录备份信息。
 
 #### Build Setup
 
