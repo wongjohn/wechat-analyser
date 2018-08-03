@@ -37,7 +37,7 @@
                               <img :src="getHeadImage(chatSession.name)">
                             </div>
                             <div class="txt">
-                              <h2>{{getNickname(chatSession.name)}}</h2>
+                              <h2>{{getNickName(chatSession.name)}}</h2>
                               <div class="p">
                                 <p><!-- Latest Message --></p>
                               </div>
@@ -66,7 +66,7 @@
                     <section>
                       <div class="ichat-messages ichattypegroup">
                         <ul v-if="chats.length">
-                          <message v-for="chat in chats" :key="chat.MesLocalID" :chat="chat"/>
+                          <message v-for="chat in chats" :key="chat.MesLocalID" :chat="chat" :session-info="selectedChatSessionInfo"/>
                         </ul>
                         <div class="empty-message" v-if="!chats.length">
                           没有消息
@@ -101,6 +101,7 @@
         selectedChatSessionInfo: {
           sessionName: null,
           displayName: '微信聊天记录',
+          headImage: '',
           length: 0,
         },
       };
@@ -115,9 +116,11 @@
     },
     methods: {
       viewChatsOf(chatSessionName) {
+        this.chats = []; // 切换时，初始化
         this.selectedChatSessionInfo = {
           sessionName: chatSessionName,
-          displayName: this.getNickname(chatSessionName),
+          displayName: this.getNickName(chatSessionName),
+          headImage: this.getHeadImage(chatSessionName),
           length: 0,
         };
         WechatService.loadChatsOf(chatSessionName)
@@ -126,7 +129,7 @@
             this.selectedChatSessionInfo.length = chats.length;
           });
       },
-      getNickname(chatRoomName) {
+      getNickName(chatRoomName) {
         let destination = chatRoomName.substring('Chat_'.length, chatRoomName.length);
         if (this.contactsHashObject[destination]) {
           destination = this.contactsHashObject[destination];
@@ -389,7 +392,7 @@
   .ichat-conversation .txt {
     float: left;
     margin-left: 14px;
-    width: 180px;
+    width: 160px;
   }
   .font-overflow, .ichat-conversation .txt .p p, .ichat-conversation .txt h2 {
     overflow: hidden;
@@ -476,6 +479,13 @@
   }
   .ichat-message {
     margin: 10px 0;
+  }
+  .ichat-message.self .ichat-message-from {
+    float: right;
+  }
+  .ichat-message.self .ichat-message-content {
+    margin-left: 35px;
+    margin-right: 60px;
   }
   .ichat-message:after {
     content: "";

@@ -10,6 +10,7 @@ export default {
   },
   props: {
     chat: Object,
+    sessionInfo: Object,
   },
   render(createElement) {
     let messageType = 'text-message';
@@ -34,9 +35,7 @@ export default {
         messageType = 'text-message';
     }
     return createElement(messageType, {
-      props: {
-        chat: this.chat,
-      },
+      props: this.$props,
     });
   },
 };
