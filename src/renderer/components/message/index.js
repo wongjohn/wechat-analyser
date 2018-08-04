@@ -1,12 +1,13 @@
 import TextMessage from './text-message';
 import SystemMessage from './system-message';
+import ImageMessage from './image-message';
 /**
  * 微信消息——根据不同类型，进行不同方式解析、展示为不同样式
  */
 export default {
   name: 'message',
   components: {
-    TextMessage, SystemMessage,
+    TextMessage, SystemMessage, ImageMessage,
   },
   props: {
     chat: Object,
@@ -20,7 +21,11 @@ export default {
         messageType = 'system-message';
         break;
       case 1: // '文本'
+        messageType = 'text-message';
+        break;
       case 3: // '图片'
+        messageType = 'image-message';
+        break;
       case 34: // '语音'
       case 35: // '邮件'
       case 42: // '名片'
