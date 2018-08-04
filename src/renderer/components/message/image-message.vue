@@ -95,7 +95,7 @@
             const encryptedBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.cdnmidimgurl); // eslint-disable-line
             const decryptedBytes = aesCtr.decrypt(encryptedBytes);
             const skey = Buffer.from(decryptedBytes);
-            return `<img style="width: ${msgObject.msg.img._attributes.cdnthumbheight}px; height: ${msgObject.msg.img._attributes.cdnthumbwidth}px;" src="https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg?MsgID=${this.chat.MesSvrID}&&skey=${skey}">`; // eslint-disable-line
+            return `<img style="width: ${msgObject.msg.img._attributes.cdnthumbwidth}px; height: ${msgObject.msg.img._attributes.cdnthumbheight}px;" src="https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg?MsgID=${this.chat.MesSvrID}&&skey=${skey}">`; // eslint-disable-line
           }
           return `<pre>${this.chat.Message}</pre>`;
         }
