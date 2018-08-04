@@ -84,22 +84,19 @@
         return DEFAULT_HEAD_IMAGE;
       },
       message() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            const msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
-            const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
-            // TODO aeskey 、 cdnmidimgurl 仍然解码不出来
-            const aesKeyBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.aeskey) // eslint-disable-line
-            const aesCtr = new aesjs.ModeOfOperation.ctr(aesKeyBytes); // eslint-disable-line
-            const encryptedBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.cdnmidimgurl); // eslint-disable-line
-            const decryptedBytes = aesCtr.decrypt(encryptedBytes);
-            const skey = Buffer.from(decryptedBytes);
-            return `<img style="width: ${msgObject.msg.img._attributes.cdnthumbwidth}px; height: ${msgObject.msg.img._attributes.cdnthumbheight}px;" src="https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg?MsgID=${this.chat.MesSvrID}&&skey=${skey}">`; // eslint-disable-line
-          }
-          return `<pre>${this.chat.Message}</pre>`;
+        let msgXML = this.chat.Message;
+        if (REG_EXP.test(this.chat.Message)) {
+          const [, userName] = REG_EXP.exec(this.chat.Message);
+          msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
         }
-        return `<pre>${this.chat.Message}</pre>`;
+        const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
+        // TODO aeskey 、 cdnmidimgurl 仍然解码不出来
+        const aesKeyBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.aeskey) // eslint-disable-line
+        const aesCtr = new aesjs.ModeOfOperation.ctr(aesKeyBytes); // eslint-disable-line
+        const encryptedBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.cdnmidimgurl); // eslint-disable-line
+        const decryptedBytes = aesCtr.decrypt(encryptedBytes);
+        const skey = Buffer.from(decryptedBytes);
+        return `<img style="width: ${msgObject.msg.img._attributes.cdnthumbwidth}px; height: ${msgObject.msg.img._attributes.cdnthumbheight}px;" src="https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg?MsgID=${this.chat.MesSvrID}&&skey=${skey}">`; // eslint-disable-line
       },
     },
   };

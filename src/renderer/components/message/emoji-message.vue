@@ -83,16 +83,13 @@
         return DEFAULT_HEAD_IMAGE;
       },
       message() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            const msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
-            const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
-            return `<img style="width: ${msgObject.msg.emoji._attributes.width}px; height: ${msgObject.msg.emoji._attributes.height}px;" src="${msgObject.msg.emoji._attributes.cdnurl}">`; // eslint-disable-line
-          }
-          return `<pre>${this.chat.Message}</pre>`;
+        let msgXML = this.chat.Message;
+        if (REG_EXP.test(this.chat.Message)) {
+          const [, userName] = REG_EXP.exec(this.chat.Message);
+          msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
         }
-        return `<pre>${this.chat.Message}</pre>`;
+        const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
+        return `<img style="width: ${msgObject.msg.emoji._attributes.width}px; height: ${msgObject.msg.emoji._attributes.height}px;" src="${msgObject.msg.emoji._attributes.cdnurl}">`; // eslint-disable-line
       },
     },
   };
