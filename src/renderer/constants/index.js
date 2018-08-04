@@ -7,6 +7,10 @@ export const WEIXIN_APP_DOMAIN = 'AppDomain-com.tencent.xin'; // 微信的AppDom
 export const WEIXIN_SQLITE_DB_MESSAGE_FILE = 'MM.sqlite'; // 微信聊天记录存储文件
 export const WEIXIN_SQLITE_DB_CONTACT_FILE = 'WCDB_Contact.sqlite'; // 微信通讯录存储文件
 
+// 默认微信头像
+export const DEFAULT_HEAD_IMAGE = 'http://wx.qlogo.cn/mmhead/ver_1/ozntzvibcWdPugmdr7ngLwLkuUt2L6sel2nLbH4pXu4opERGCicDHsvgR7kzWBMY8EibggYnqg9of4wVLIQNZywHdmlPV8tMwK3lvQb2UbN7GQ/132';
+// 微信号正则式
+export const REG_EXP = /^([a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}):\n.*/; // wxid_qi45uqjuajox12:
 /**
  * 微信消息类型
  * （从微信网页端抽取，不过看来不可信，好多标志位都变化了。）

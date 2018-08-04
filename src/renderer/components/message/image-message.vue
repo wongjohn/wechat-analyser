@@ -40,8 +40,7 @@
   import converter from 'xml-js';
   import aesjs from 'aes-js';
   import WechatService from '../../wechat-service';
-  const DEFAULT_HEAD_IMAGE = 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLCK5PlaK1piamCgcc1kAFzt2BE8PFPcm5urnmUJGfj53hXH50PT0EGt28ZqicxU8Paria72ohkVUxzA/132?token=eyJhbGciOiJIUzI1NiJ9.eyJvZmZpY2VfaWQiOiI0ZDc5MmUzMTZhMDUxMWU2YWE3NjAwMTYzZTE2MmFkZCIsImRldmljZVR5cGUiOiJ0ZWFtIiwib2ZmaWNlX25hbWUiOiJpQ291cnQiLCJ1c2VyX2lkIjoiRDk5QkUxNTAyQ0FEMTFFODg0Nzk0NDZBMkVEOURDQkQiLCJsb2dpblR5cGUiOiIxIiwidXNlcl9uYW1lIjoi546L5aOr5rGfIiwiaXNzIjoiaUxhdy5jb20iLCJleHAiOjE1MzM2OTYwNzQ3NzAsImlhdCI6MTUzMzA5MTI3NDc3MCwib2ZmaWNlVHlwZSI6ImludGVncmF0aW9uIn0.8nmwzTETmiky4inHiGF3WlDMfKhPfVF0h4-wpU4moZc';
-  const REG_EXP = /^([a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}):\n.*/; // wxid_qi45uqjuajox12:
+  import { DEFAULT_HEAD_IMAGE, REG_EXP } from '../../constants';
   export default {
     name: 'image-message',
     props: {
