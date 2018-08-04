@@ -88,7 +88,7 @@
           msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
         }
         const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
-        return `<img style="width: ${msgObject.msg.emoji._attributes.width}px; height: ${msgObject.msg.emoji._attributes.height}px;" src="${msgObject.msg.emoji._attributes.cdnurl}">`; // eslint-disable-line
+        return `<img referrerpolicy="no-referrer" style="width: ${msgObject.msg.emoji._attributes.width}px; height: ${msgObject.msg.emoji._attributes.height}px;" src="${msgObject.msg.emoji._attributes.cdnurl}">`; // eslint-disable-line
       },
     },
   };
