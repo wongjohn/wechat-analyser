@@ -38,7 +38,7 @@
   import moment from 'moment';
   import { mapState } from 'vuex';
   import converter from 'xml-js';
-  import CryptoJS from 'crypto-js';  // eslint-disable-line
+  import aesjs from 'aes-js';
   import WechatService from '../../wechat-service';
   const DEFAULT_HEAD_IMAGE = 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTLCK5PlaK1piamCgcc1kAFzt2BE8PFPcm5urnmUJGfj53hXH50PT0EGt28ZqicxU8Paria72ohkVUxzA/132?token=eyJhbGciOiJIUzI1NiJ9.eyJvZmZpY2VfaWQiOiI0ZDc5MmUzMTZhMDUxMWU2YWE3NjAwMTYzZTE2MmFkZCIsImRldmljZVR5cGUiOiJ0ZWFtIiwib2ZmaWNlX25hbWUiOiJpQ291cnQiLCJ1c2VyX2lkIjoiRDk5QkUxNTAyQ0FEMTFFODg0Nzk0NDZBMkVEOURDQkQiLCJsb2dpblR5cGUiOiIxIiwidXNlcl9uYW1lIjoi546L5aOr5rGfIiwiaXNzIjoiaUxhdy5jb20iLCJleHAiOjE1MzM2OTYwNzQ3NzAsImlhdCI6MTUzMzA5MTI3NDc3MCwib2ZmaWNlVHlwZSI6ImludGVncmF0aW9uIn0.8nmwzTETmiky4inHiGF3WlDMfKhPfVF0h4-wpU4moZc';
   const REG_EXP = /^([a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}):\n.*/; // wxid_qi45uqjuajox12:
@@ -89,11 +89,12 @@
             const [, userName] = REG_EXP.exec(this.chat.Message);
             const msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
             const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
-            const imgUrlBytes = CryptoJS.AES.decrypt(
-              msgObject.msg.img._attributes.cdnmidimgurl,  // eslint-disable-line
-              msgObject.msg.img._attributes.aeskey,  // eslint-disable-line
-            ); // eslint-disable-line
-            const skey = imgUrlBytes.toString(CryptoJS.enc.Utf16); // eslint-disable-line
+            // TODO aeskey 、 cdnmidimgurl 仍然解码不出来
+            const aesKeyBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.aeskey) // eslint-disable-line
+            const aesCtr = new aesjs.ModeOfOperation.ctr(aesKeyBytes); // eslint-disable-line
+            const encryptedBytes = aesjs.utils.hex.toBytes(msgObject.msg.img._attributes.cdnmidimgurl); // eslint-disable-line
+            const decryptedBytes = aesCtr.decrypt(encryptedBytes);
+            const skey = Buffer.from(decryptedBytes);
             return `<img style="width: ${msgObject.msg.img._attributes.cdnthumbheight}px; height: ${msgObject.msg.img._attributes.cdnthumbwidth}px;" src="https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg?MsgID=${this.chat.MesSvrID}&&skey=${skey}">`; // eslint-disable-line
           }
           return `<pre>${this.chat.Message}</pre>`;
