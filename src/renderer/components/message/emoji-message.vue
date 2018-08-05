@@ -41,7 +41,7 @@
   import WechatService from '../../wechat-service';
   import { DEFAULT_HEAD_IMAGE, REG_EXP } from '../../constants';
   export default {
-    name: 'image-message',
+    name: 'emoji-message',
     props: {
       chat: Object,
       sessionInfo: Object,
