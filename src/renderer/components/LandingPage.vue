@@ -27,7 +27,8 @@
                   <div class="ichat-chat-conversation-w">
                     <div class="ichat-chat-conversation-c">
                       <div class="ichat-conversation">
-                        <ul>
+                        <ul v-infinite-scroll="loadChatSessionData" infinite-scroll-disabled="false"
+                        infinite-scroll-distance="100">
                           <li v-for="chatSession in chatSessions"
                             :key="chatSession.name"
                             :class="{'active': selectedChatSessionInfo.sessionName === chatSession.name}"
@@ -87,12 +88,14 @@
 <script>
   import WechatService from '../wechat-service';
   import Message from './message';
-
+  const STEP = 20; // 一次加载20条
   export default {
     name: 'landing-page',
     components: { Message },
     data() {
       return {
+        chatSessions: [],
+        chatSessionCounter: 0,
         allContacts: [],
         allChatSessions: [],
         chats: [],
@@ -105,15 +108,12 @@
         },
       };
     },
-    computed: {
-      contacts() {
-        return this.allContacts.filter((item, index) => index < 20);
-      },
-      chatSessions() {
-        return this.allChatSessions.filter((item, index) => index < 20);
-      },
-    },
     methods: {
+      loadChatSessionData() {
+        this.chatSessionCounter = this.chatSessionCounter + 1;
+        const length = Math.min(this.chatSessionCounter * STEP, this.allChatSessions.length);
+        this.chatSessions = this.allChatSessions.slice(0, length);
+      },
       viewChatsOf(chatSessionName) {
         this.chats = []; // 切换时，初始化
         this.selectedChatSessionInfo = {
