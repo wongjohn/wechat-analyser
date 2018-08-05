@@ -6,8 +6,8 @@ const plist = require('plist');
 const sqlite3 = require('sqlite3').verbose();
 const md5 = require('md5');
 
-const PATH = path.resolve(os.homedir(), C.ROOT_DIR, '7a99001c2b3b7136d02a561ad1815a7a4d156b9a');
-const InfoPlist = plist.parse(fs.readFileSync(path.resolve(PATH, C.INFO_PLIST_FILE), 'utf8'));
+const MOBILE_BACKUP_FOLDER_PATH = path.resolve(os.homedir(), C.ROOT_DIR);
+let SELECTED_BACKUP_FOLDER_PATH;
 
 let messageFileID; // 消息文件ID
 let contactFileID; // 通讯录文件ID
@@ -20,7 +20,8 @@ let contactsHashObject; // 使用Hash形式、读取内容
  */
 function getMessageAndContactFileID() {
   return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(path.resolve(PATH, C.MANIFEST_FILE), sqlite3.OPEN_READONLY);
+    const db = new sqlite3.Database(
+      path.resolve(SELECTED_BACKUP_FOLDER_PATH, C.MANIFEST_FILE), sqlite3.OPEN_READONLY);
 
     db.all(`
   select f.fileID, f.domain, f.relativePath from Files as f
@@ -99,7 +100,8 @@ function parseImage(headImage) {
 function getUserContacts(contactFileID) {
   return new Promise((resolve, reject) => {
     const contactFolderName = contactFileID.substr(0, 2);
-    const db = new sqlite3.Database(path.resolve(PATH, contactFolderName, contactFileID),
+    const db = new sqlite3.Database(
+      path.resolve(SELECTED_BACKUP_FOLDER_PATH, contactFolderName, contactFileID),
       sqlite3.OPEN_READONLY);
 
     db.all(`
@@ -129,7 +131,8 @@ function getUserContacts(contactFileID) {
 function getUserChatSessions(messageFileID) {
   return new Promise((resolve, reject) => {
     const messageFolderName = messageFileID.substr(0, 2);
-    const db = new sqlite3.Database(path.resolve(PATH, messageFolderName, messageFileID),
+    const db = new sqlite3.Database(
+      path.resolve(SELECTED_BACKUP_FOLDER_PATH, messageFolderName, messageFileID),
       sqlite3.OPEN_READONLY);
 
     db.all(`
@@ -148,13 +151,6 @@ function getUserChatSessions(messageFileID) {
 }
 
 export default {
-  /**
-   * 获取手机信息
-   * @returns {*}
-   */
-  getProductName() {
-    return InfoPlist['Product Name'];
-  },
   /**
    * 消息文件ID/通讯录文件ID
    * @returns { messageFileID, contactFileID }
@@ -197,7 +193,8 @@ export default {
   loadChatsOf(chatTableName) {
     return new Promise((resolve, reject) => {
       const messageFolderName = messageFileID.substr(0, 2);
-      const db = new sqlite3.Database(path.resolve(PATH, messageFolderName, messageFileID),
+      const db = new sqlite3.Database(
+        path.resolve(SELECTED_BACKUP_FOLDER_PATH, messageFolderName, messageFileID),
         sqlite3.OPEN_READONLY);
 
       db.all(`select * from ${chatTableName}`, (error, rows) => {
@@ -210,5 +207,24 @@ export default {
 
       db.close();
     });
+  },
+  findMobileBackupFolders() {
+    const backupFolders = fs.readdirSync(MOBILE_BACKUP_FOLDER_PATH);
+    const backupFoldersInfo = [];
+    backupFolders.forEach((backupFolder) => {
+      if (fs.statSync(path.resolve(MOBILE_BACKUP_FOLDER_PATH, backupFolder)).isDirectory()) {
+        // 获取手机信息
+        const InfoPlist = plist.parse(
+          fs.readFileSync(path.resolve(MOBILE_BACKUP_FOLDER_PATH, backupFolder, C.INFO_PLIST_FILE), 'utf8'));
+        backupFoldersInfo.push(InfoPlist);
+      }
+    });
+    return backupFoldersInfo;
+  },
+  selectBackup(backupFolderInfo) {
+    SELECTED_BACKUP_FOLDER_PATH = path.resolve(MOBILE_BACKUP_FOLDER_PATH, backupFolderInfo['Target Identifier']);
+  },
+  getSelectedBackupPath() {
+    return SELECTED_BACKUP_FOLDER_PATH;
   },
 };

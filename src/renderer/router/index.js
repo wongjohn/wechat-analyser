@@ -6,9 +6,14 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'landing-page',
+      path: '/chats-history',
+      name: 'chats-history',
       component: require('@/components/LandingPage').default,
+    },
+    {
+      path: '/',
+      name: 'dashboard',
+      component: require('@/components/DashboardPage').default,
     },
     {
       path: '*',

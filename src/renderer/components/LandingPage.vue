@@ -94,7 +94,6 @@
     data() {
       return {
         allContacts: [],
-        productName: '',
         allChatSessions: [],
         chats: [],
         contactsHashObject: {},
@@ -150,6 +149,10 @@
       },
     },
     mounted() {
+      if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
+        this.$router.push('dashboard');
+        return;
+      }
       WechatService.getMessageAndContactFileID()
         .then(({ messageFileID, contactFileID }) => {
           WechatService.getUserContacts(contactFileID)
@@ -167,7 +170,6 @@
               this.allChatSessions = chatSessions;
             });
         });
-      this.productName = WechatService.getProductName();
     },
   };
 </script>
