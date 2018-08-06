@@ -137,7 +137,7 @@ function getUserChatSessions(messageFileID) {
 
     db.all(`
     SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Chat_%'
-    AND name NOT LIKE 'ChatExt%'`, (error, rows) => {
+    AND name NOT LIKE 'ChatExt%' order by rootpage desc`, (error, rows) => {
       if (!error) {
         chats = rows;
         resolve(rows);
