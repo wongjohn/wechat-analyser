@@ -364,7 +364,6 @@
     box-sizing: border-box;
   }
   .ichat-chat-conversation-search {
-    -webkit-app-region: drag;
     border-bottom: 1px solid #f0f0f0;
     overflow: hidden;
   }
