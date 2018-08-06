@@ -123,10 +123,12 @@
           headImage: this.getHeadImage(chatSessionName),
           length: 0,
         };
+        const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-detail .ichat-detail-c' });
         WechatService.loadChatsOf(chatSessionName)
           .then((chats) => {
             this.chats = chats;
             this.selectedChatSessionInfo.length = chats.length;
+            loadingInstance.close();
           });
       },
       getNickName(chatRoomName) {
