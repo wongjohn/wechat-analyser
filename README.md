@@ -12,6 +12,10 @@
 
 ![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-03.png)
 
+聊天记录按照时间倒序——最新的聊天记录、排在最前面
+
+![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-04.png)
+
 使用electron-vue进行开发
 
 ![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-01.png)
