@@ -15,7 +15,7 @@
                 <div class="ichat-message-ope"><!---->
                     <a class="iui-tooltip">
                         <i class="iui-icon iui-icon-pin"></i>
-                        <div class="iui-tooltip-c" style="margin-left: 0px;">复制</div>
+                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="copyText">复制</div>
                     </a>
                     <a class="iui-tooltip">
                         <i class="iui-icon iui-icon-task-pad"></i>
@@ -39,6 +39,7 @@
 <script>
   import moment from 'moment';
   import { mapState } from 'vuex';
+  import { clipboard } from 'electron'; // eslint-disable-line
   import WechatService from '../../wechat-service';
   import { DEFAULT_HEAD_IMAGE, REG_EXP } from '../../constants';
 
@@ -92,6 +93,12 @@
           return this.chat.Message;
         }
         return this.chat.Message;
+      },
+    },
+    methods: {
+      copyText() {
+        clipboard.writeText(this.message);
+        this.$message.success('消息已经拷贝到剪贴板');
       },
     },
   };
