@@ -10,7 +10,7 @@
 
 联系人搜索
 
-![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-02.png)
+![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-03.png)
 
 使用electron-vue进行开发
 
