@@ -118,6 +118,9 @@
         this.chatSessions = this.allChatSessions.slice(0, length);
       },
       viewChatsOf(chatSessionName) {
+        if (chatSessionName === this.selectedChatSessionInfo.sessionName) {
+          return; // 不重新加载已选中的聊天室信息
+        }
         this.chats = []; // 切换时，初始化
         this.selectedChatSessionInfo = {
           sessionName: chatSessionName,
