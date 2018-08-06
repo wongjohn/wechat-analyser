@@ -61,7 +61,7 @@
                             <div class="txt">
                               <h2>{{getNickName(chatSession.name)}}</h2>
                               <div class="p">
-                                <p><!-- Latest Message --></p>
+                                <p>{{formatTime(chatSession.CreateTime)}}</p>
                               </div>
                             </div>
                           </li>
@@ -211,6 +211,7 @@
       handleCommand(contact) {
         this.viewChatsOf(`Chat_${WechatService.md5(contact.userName)}`);
       },
+      formatTime: WechatService.formatTime,
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录

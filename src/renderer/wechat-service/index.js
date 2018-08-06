@@ -1,3 +1,4 @@
+import moment from 'moment';
 import * as C from '../constants/index';
 const fs = require('fs');
 const os = require('os');
@@ -140,7 +141,27 @@ function getUserChatSessions(messageFileID) {
     AND name NOT LIKE 'ChatExt%' order by rootpage desc`, (error, rows) => {
       if (!error) {
         chats = rows;
-        resolve(rows);
+        const promises = [];
+        rows.forEach((row) => {
+          let res;
+          let rej;
+          promises.push(new Promise((_resolve, _reject) => {
+            res = _resolve;
+            rej = _reject;
+          }));
+          db.get(`select max(CreateTime) as CreateTime from ${row.name}`, (err, record) => {
+            if (!err) {
+              row.CreateTime = record.CreateTime;
+              res(row);
+            } else {
+              rej(err);
+            }
+          });
+        });
+        Promise.all(promises)
+          .then(() => {
+            resolve(rows.sort((a, b) => b.CreateTime - a.CreateTime));
+          });
       } else {
         reject(error);
       }
@@ -175,6 +196,10 @@ function queryContacts(keyword) {
 
     db.close();
   });
+}
+
+function formatTime(CreateTime) {
+  return moment(new Date(CreateTime * 1000)).format('YYYY-MM-DD HH:mm:ss');
 }
 
 export default {
@@ -256,4 +281,5 @@ export default {
   },
   queryContacts,
   md5,
+  formatTime,
 };
