@@ -161,6 +161,9 @@
             setTimeout(() => {
               this.$refs['ichatMessagesRef'].scrollTop = document.querySelector('.ichat-messages-wrapper').clientHeight; // eslint-disable-line
             }, 500);
+          }, (error) => {
+            this.$message.error(error);
+            loadingInstance.close();
           });
       },
       getNickName(chatRoomName) {
@@ -196,6 +199,9 @@
             .then((contacts) => {
               this.contacts = contacts;
               loadingInstance.close();
+            }, (error) => {
+              this.$message.error(error);
+              loadingInstance.close();
             });
         }, 500);
       },
@@ -228,6 +234,9 @@
             .then((chatSessions) => {
               this.allChatSessions = chatSessions;
               this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+              loadingInstance.close();
+            }, (error) => {
+              this.$message.error(error);
               loadingInstance.close();
             });
         });
