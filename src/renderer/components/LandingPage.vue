@@ -154,7 +154,7 @@
         this.$router.push('dashboard');
         return;
       }
-      const loadingInstance = Loading.service({ fullscreen: true });
+      const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-chat-conversation' });
       WechatService.getMessageAndContactFileID()
         .then(({ messageFileID, contactFileID }) => {
           WechatService.getUserContacts(contactFileID)
