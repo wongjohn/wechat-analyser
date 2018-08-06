@@ -65,12 +65,14 @@
                   </div>
                   <div class="ichat-detail-c">
                     <section>
-                      <div class="ichat-messages ichattypegroup">
-                        <ul v-if="chats.length">
-                          <message v-for="chat in chats" :key="chat.MesLocalID" :chat="chat" :session-info="selectedChatSessionInfo"/>
-                        </ul>
-                        <div class="empty-message" v-if="!chats.length">
-                          没有消息
+                      <div class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
+                        <div class="ichat-messages-wrapper">
+                          <ul v-if="chats.length">
+                            <message v-for="chat in chats" :key="chat.MesLocalID" :chat="chat" :session-info="selectedChatSessionInfo"/>
+                          </ul>
+                          <div class="empty-message" v-if="!chats.length">
+                            没有消息
+                          </div>
                         </div>
                       </div>
                     </section>
@@ -129,6 +131,9 @@
             this.chats = chats;
             this.selectedChatSessionInfo.length = chats.length;
             loadingInstance.close();
+            setTimeout(() => {
+              this.$refs['ichatMessagesRef'].scrollTop = document.querySelector('.ichat-messages-wrapper').clientHeight; // eslint-disable-line
+            }, 500);
           });
       },
       getNickName(chatRoomName) {
