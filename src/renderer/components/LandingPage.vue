@@ -86,6 +86,7 @@
 </template>
 
 <script>
+  import { Loading } from 'element-ui';
   import WechatService from '../wechat-service';
   import Message from './message';
   const STEP = 20; // 一次加载20条
@@ -153,6 +154,7 @@
         this.$router.push('dashboard');
         return;
       }
+      const loadingInstance = Loading.service({ fullscreen: true });
       WechatService.getMessageAndContactFileID()
         .then(({ messageFileID, contactFileID }) => {
           WechatService.getUserContacts(contactFileID)
@@ -168,6 +170,8 @@
           WechatService.getUserChatSessions(messageFileID)
             .then((chatSessions) => {
               this.allChatSessions = chatSessions;
+              this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+              loadingInstance.close();
             });
         });
     },

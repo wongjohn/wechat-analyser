@@ -68,6 +68,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     user-select: none;
+    height: 25px;
+    line-height: 19px;
+  }
+  .backup-folders {
+    height:  calc(100vh - 25px);
+    overflow: auto;
+    background-color: #fff;
   }
   .backup-finder h1 {
     text-align: center;
@@ -77,6 +84,13 @@
     width: 600px;
     margin: 16px auto;
     cursor: pointer;
+    padding: 16px;
+  }
+  .backup-folders .backup-folder-wrapper:hover,
+  .backup-folders .backup-folder-wrapper:focus,
+  .backup-folders .backup-folder-wrapper:active {
+    border-radius: 12px;
+    box-shadow: 6px 6px 22px #ccc;
   }
   .backup-folder-wrapper .iphone {
     width: 180px;
