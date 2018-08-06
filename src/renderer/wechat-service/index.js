@@ -150,6 +150,33 @@ function getUserChatSessions(messageFileID) {
   });
 }
 
+function queryContacts(keyword) {
+  return new Promise((resolve, reject) => {
+    const contactFolderName = contactFileID.substr(0, 2);
+    const db = new sqlite3.Database(
+      path.resolve(SELECTED_BACKUP_FOLDER_PATH, contactFolderName, contactFileID),
+      sqlite3.OPEN_READONLY);
+
+    db.all(`
+          SELECT userName, dbContactRemark, dbContactProfile, dbContactChatRoom, dbContactHeadImage FROM Friend where dbContactRemark like '%${keyword}%'
+          `, (error, rows) => {
+      if (!error) {
+        contactsHashObject = {}; // Init
+        rows.forEach((row) => {
+          row.hashName = md5(row.userName);
+          contactsHashObject[row.hashName] = row;
+        });
+        contacts = rows;
+        resolve(rows);
+      } else {
+        reject(error);
+      }
+    });
+
+    db.close();
+  });
+}
+
 export default {
   /**
    * 消息文件ID/通讯录文件ID
@@ -227,4 +254,6 @@ export default {
   getSelectedBackupPath() {
     return SELECTED_BACKUP_FOLDER_PATH;
   },
+  queryContacts,
+  md5,
 };

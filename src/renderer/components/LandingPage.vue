@@ -20,7 +20,28 @@
                   <div class="ichat-chat-conversation-search">
                     <div tabindex="2" class="chat-search-w">
                       <i class="iui-icon iui-icon-search"></i>
-                      <input type="text" placeholder="讨论组、联系人">
+                      <el-dropdown
+                        class="suggestion-input"
+                        trigger="click"
+                        @command="handleCommand"
+                        ref="dropDownMenu"
+                        placement="bottom-start"
+                      >
+                        <input type="text" placeholder="讨论组、联系人" v-model="keyword" @input="queryContacts">
+                        <el-dropdown-menu
+                          class="suggestion-menus"
+                          :class="{'no-suggestion': !contacts.length}"
+                          slot="dropdown">
+                          <el-dropdown-item disabled>联系人</el-dropdown-item>
+                          <el-dropdown-item
+                            v-for="item in contacts"
+                            :key="item.name"
+                            v-if="contacts.length"
+                            :command="item">
+                            {{ getDisplayName(item) }}
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
                     </div>
                     <a class="add-group"></a>
                   </div>
@@ -109,6 +130,9 @@
           headImage: '',
           length: 0,
         },
+        keyword: '',
+        contacts: [],
+        debounceId: '',
       };
     },
     methods: {
@@ -157,6 +181,29 @@
           return WechatService.parseImage(destination.dbContactHeadImage);
         }
         return destination;
+      },
+      queryContacts() {
+        if (!this.keyword) {
+          this.contacts = [];
+          return; // Do nothing
+        }
+        if (this.debounceId) {
+          clearTimeout(this.debounceId);
+        }
+        this.debounceId = setTimeout(() => {
+          const loadingInstance = Loading.service({ fullscreen: true, target: '.suggestion-input' });
+          WechatService.queryContacts(this.keyword)
+            .then((contacts) => {
+              this.contacts = contacts;
+              loadingInstance.close();
+            });
+        }, 500);
+      },
+      getDisplayName(contact) {
+        return WechatService.parseName(contact.dbContactRemark);
+      },
+      handleCommand(contact) {
+        this.viewChatsOf(`Chat_${WechatService.md5(contact.userName)}`);
       },
     },
     mounted() {
@@ -654,5 +701,15 @@
   }
   .chats {
     width: 200px;
+  }
+  .suggestion-menus {
+    max-height: calc(100vh - 50px);
+    overflow: auto;
+  }
+  .suggestion-menus.el-popper .popper__arrow {
+    display: none;
+  }
+  .suggestion-menus.el-popper .no-suggestion {
+    display: none;
   }
 </style>
