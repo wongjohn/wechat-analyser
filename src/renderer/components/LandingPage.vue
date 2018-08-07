@@ -122,6 +122,7 @@
         chatSessionCounter: 0,
         allContacts: [],
         allChatSessions: [],
+        allChats: [],
         chats: [],
         contactsHashObject: {},
         selectedChatSessionInfo: {
@@ -146,6 +147,7 @@
           return; // 不重新加载已选中的聊天室信息
         }
         this.chats = []; // 切换时，初始化
+        this.allChats = [];
         this.selectedChatSessionInfo = {
           sessionName: chatSessionName,
           displayName: this.getNickName(chatSessionName),
@@ -155,7 +157,9 @@
         const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-detail .ichat-detail-c' });
         WechatService.loadChatsOf(chatSessionName)
           .then((chats) => {
-            this.chats = chats;
+            this.allChats = chats;
+            const sevenDaysAgo = WechatService.sevenDaysAgo();
+            this.chats = chats.filter(chat => chat.CreateTime >= sevenDaysAgo); // 7天前
             this.selectedChatSessionInfo.length = chats.length;
             loadingInstance.close();
             setTimeout(() => {

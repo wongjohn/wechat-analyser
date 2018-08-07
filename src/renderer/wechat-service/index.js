@@ -202,6 +202,12 @@ function formatTime(CreateTime) {
   return moment(new Date(CreateTime * 1000)).format('YYYY-MM-DD HH:mm:ss');
 }
 
+
+function sevenDaysAgo() {
+  const sevenDaysAgo = moment().subtract(7, 'days');
+  return sevenDaysAgo.toDate().getTime() / 1000;
+}
+
 export default {
   /**
    * 消息文件ID/通讯录文件ID
@@ -282,4 +288,5 @@ export default {
   queryContacts,
   md5,
   formatTime,
+  sevenDaysAgo,
 };
