@@ -2,6 +2,7 @@ import TextMessage from './text-message';
 import SystemMessage from './system-message';
 import ImageMessage from './image-message';
 import EmojiMessage from './emoji-message';
+import AppMessage from './app-message';
 import * as C from '../../constants';
 /**
  * 微信消息——根据不同类型，进行不同方式解析、展示为不同样式
@@ -9,7 +10,7 @@ import * as C from '../../constants';
 export default {
   name: 'message',
   components: {
-    TextMessage, SystemMessage, ImageMessage, EmojiMessage,
+    TextMessage, SystemMessage, ImageMessage, EmojiMessage, AppMessage,
   },
   props: {
     chat: Object,
@@ -28,18 +29,18 @@ export default {
       case C.MM_DATA_IMG: // '图片'
         messageType = 'image-message';
         break;
+      case C.MM_DATA_EMOJI: // '表情'
+        messageType = 'emoji-message';
+        break;
+      case C.MM_DATA_APPMSG: // '链接'
+        messageType = 'app-message';
+        break;
       case C.MM_DATA_VOICEMSG: // '语音'
       case C.MM_DATA_PUSHMAIL: // '邮件'
       case C.MM_DATA_SHARECARD: // '名片'
       case C.MM_DATA_VIDEO: // '视频'
       case C.MM_DATA_VIDEO_IPHONE_EXPORT: // '视频'
-        messageType = 'text-message';
-        break;
-      case C.MM_DATA_EMOJI: // '表情'
-        messageType = 'emoji-message';
-        break;
       case C.MM_DATA_LOCATION: // '位置'
-      case C.MM_DATA_APPMSG: // '链接'
       case C.MM_DATA_VOIPMSG: // '通话'
       case C.MM_DATA_MICROVIDEO: // '视频'
       default:
