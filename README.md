@@ -4,22 +4,13 @@
 
 ## 运行时截图
 
-可以进行聊天记录历史查看，聊天记录复制、记录Bug等功能。
+可以进行聊天记录历史查看。
 
-![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-02.png)
+![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot.png)
 
-联系人搜索
+支持联系人搜索。
 
-![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-03.png)
-
-聊天记录按照时间倒序——最新的聊天记录、排在最前面
-
-![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-04.png)
-
-使用electron-vue进行开发
-
-![微信聊天记录查看、分析工具](/src/renderer/assets/screenshot-01.png)
-
+聊天记录按照时间倒序——最新的聊天记录、排在最前面，默认查看最近7天的消息记录。
 
 #### Build Setup
 
