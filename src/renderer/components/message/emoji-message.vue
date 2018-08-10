@@ -35,63 +35,27 @@
 </template>
 
 <script>
-  import moment from 'moment';
-  import { mapState } from 'vuex';
   import converter from 'xml-js';
-  import WechatService from '../../wechat-service';
-  import { DEFAULT_HEAD_IMAGE, REG_EXP } from '../../constants';
-  export default {
+  import { REG_EXP } from '../../constants';
+  import Core from './core';
+
+  const EmojiMessage = Object.assign({}, Core, {
     name: 'emoji-message',
-    props: {
-      chat: Object,
-      sessionInfo: Object,
+  });
+
+  EmojiMessage.computed = Object.assign({}, EmojiMessage.computed, {
+    message() {
+      let msgXML = this.chat.Message;
+      if (REG_EXP.test(this.chat.Message)) {
+        const [, userName] = REG_EXP.exec(this.chat.Message);
+        msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
+      }
+      const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
+      return `<img referrerpolicy="no-referrer" style="width: ${msgObject.msg.emoji._attributes.width}px; height: ${msgObject.msg.emoji._attributes.height}px;" src="${msgObject.msg.emoji._attributes.cdnurl}">`; // eslint-disable-line
     },
-    computed: {
-      ...mapState({
-        contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
-      }),
-      messageTime() {
-        return moment(new Date(this.chat.CreateTime * 1000)).format('YYYY-MM-DD HH:mm:ss');
-      },
-      displayName() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            if (this.contactsUserNameMapObject[userName]) {
-              return WechatService.parseName(
-                this.contactsUserNameMapObject[userName].dbContactRemark);
-            }
-            return this.sessionInfo.displayName;
-          }
-          return this.sessionInfo.displayName;
-        }
-        return '我';
-      },
-      headImage() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            if (this.contactsUserNameMapObject[userName]) {
-              return WechatService.parseImage(
-                this.contactsUserNameMapObject[userName].dbContactHeadImage);
-            }
-            return this.sessionInfo.headImage;
-          }
-          return this.sessionInfo.headImage;
-        }
-        return DEFAULT_HEAD_IMAGE;
-      },
-      message() {
-        let msgXML = this.chat.Message;
-        if (REG_EXP.test(this.chat.Message)) {
-          const [, userName] = REG_EXP.exec(this.chat.Message);
-          msgXML = this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
-        }
-        const msgObject = JSON.parse(converter.xml2json(msgXML, { compact: true }));
-        return `<img referrerpolicy="no-referrer" style="width: ${msgObject.msg.emoji._attributes.width}px; height: ${msgObject.msg.emoji._attributes.height}px;" src="${msgObject.msg.emoji._attributes.cdnurl}">`; // eslint-disable-line
-      },
-    },
-  };
+  });
+
+  export default EmojiMessage;
 </script>
 
 <style>

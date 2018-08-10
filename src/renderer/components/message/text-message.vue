@@ -37,71 +37,33 @@
 </template>
 
 <script>
-  import moment from 'moment';
-  import { mapState } from 'vuex';
   import { clipboard } from 'electron'; // eslint-disable-line
-  import WechatService from '../../wechat-service';
-  import { DEFAULT_HEAD_IMAGE, REG_EXP } from '../../constants';
-
-  export default {
+  import { REG_EXP } from '../../constants';
+  import Core from './core';
+  const TextMessage = Object.assign({}, Core, {
     name: 'text-message',
-    props: {
-      chat: Object,
-      sessionInfo: Object,
-    },
-    computed: {
-      ...mapState({
-        contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
-      }),
-      messageTime() {
-        return moment(new Date(this.chat.CreateTime * 1000)).format('YYYY-MM-DD HH:mm:ss');
-      },
-      displayName() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            if (this.contactsUserNameMapObject[userName]) {
-              return WechatService.parseName(
-                this.contactsUserNameMapObject[userName].dbContactRemark);
-            }
-            return this.sessionInfo.displayName;
-          }
-          return this.sessionInfo.displayName;
-        }
-        return '我';
-      },
-      headImage() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            if (this.contactsUserNameMapObject[userName]) {
-              return WechatService.parseImage(
-                this.contactsUserNameMapObject[userName].dbContactHeadImage);
-            }
-            return this.sessionInfo.headImage;
-          }
-          return this.sessionInfo.headImage;
-        }
-        return DEFAULT_HEAD_IMAGE;
-      },
-      message() {
-        if (this.chat.Des) { // 对方发送的信息
-          if (REG_EXP.test(this.chat.Message)) {
-            const [, userName] = REG_EXP.exec(this.chat.Message);
-            return this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
-          }
-          return this.chat.Message;
-        }
-        return this.chat.Message;
-      },
-    },
     methods: {
       copyText() {
         clipboard.writeText(this.message);
         this.$message.success('消息已经拷贝到剪贴板');
       },
     },
-  };
+  });
+
+  TextMessage.computed = Object.assign({}, TextMessage.computed, {
+    message() {
+      if (this.chat.Des) { // 对方发送的信息
+        if (REG_EXP.test(this.chat.Message)) {
+          const [, userName] = REG_EXP.exec(this.chat.Message);
+          return this.chat.Message.substring(userName.length + 2, this.chat.Message.length);
+        }
+        return this.chat.Message;
+      }
+      return this.chat.Message;
+    },
+  });
+
+  export default TextMessage;
 </script>
 
 <style>
