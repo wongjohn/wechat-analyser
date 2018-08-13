@@ -150,3 +150,8 @@ export const MM_SEND_FILE_STATUS_SENDING = 1;
 export const MM_SEND_FILE_STATUS_SUCCESS = 2;
 export const MM_SEND_FILE_STATUS_FAIL = 3;
 export const MM_SEND_FILE_STATUS_CANCEL = 4;
+
+/** Bug模板文件 */
+export const BUG_TEMPLATE_FILE_NAME = 'alpha__bug_template.xlsx';
+/** Bug文件输出目录 */
+export const BUG_DOWNLOAD_DIRECTORY = 'Downloads';
