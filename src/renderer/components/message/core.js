@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { mapState } from 'vuex';
-import WechatService from '../../wechat-service';
+import WechatService from '../../service/wechat-service';
 import { DEFAULT_HEAD_IMAGE, REG_EXP } from '../../constants';
 
 export default {

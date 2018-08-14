@@ -110,7 +110,7 @@
 
 <script>
   import { Loading } from 'element-ui';
-  import WechatService from '../wechat-service';
+  import WechatService from '../service/wechat-service';
   import Message from './message';
   const STEP = 20; // 一次加载20条
   export default {

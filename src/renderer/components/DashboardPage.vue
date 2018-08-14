@@ -35,7 +35,7 @@
 </template>
 
 <script>
-  import WechatService from '../wechat-service';
+  import WechatService from '../service/wechat-service';
 
   export default {
     name: 'landing-page',

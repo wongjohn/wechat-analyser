@@ -1,5 +1,5 @@
 import moment from 'moment';
-import * as C from '../constants/index';
+import * as C from '../../constants/index';
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
