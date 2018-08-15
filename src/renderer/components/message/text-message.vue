@@ -19,9 +19,7 @@
                     </a>
                     <a class="iui-tooltip">
                         <i class="iui-icon iui-icon-task-pad"></i>
-                        <div class="iui-tooltip-c" style="margin-left: 0px;">
-                            转Bug
-                        </div>
+                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="addBug">记录Bug</div>
                     </a>
                 </div>
             </div>
@@ -40,12 +38,23 @@
   import { clipboard } from 'electron'; // eslint-disable-line
   import { REG_EXP } from '../../constants';
   import Core from './core';
+  import bugService from '../../service/bug-service';
   const TextMessage = Object.assign({}, Core, {
     name: 'text-message',
     methods: {
       copyText() {
         clipboard.writeText(this.message);
         this.$message.success('消息已经拷贝到剪贴板');
+      },
+      addBug() {
+        this.$message.success('消息已经记录到Bug列表');
+        bugService.addBug({
+          module: '',
+          title: this.message,
+          type: '',
+          source: `${this.sessionInfo.displayName} - ${this.displayName}`,
+          detail: this.message,
+        });
       },
     },
   });
