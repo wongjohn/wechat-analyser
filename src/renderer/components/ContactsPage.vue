@@ -45,12 +45,12 @@
                             @click="viewChatsOf(chatSession.name)"
                         >
                           <div class="img group">
-                            <img :src="getHeadImage(chatSession.name)">
+                            <img :src="getHeadImage(chatSession)">
                           </div>
                           <div class="txt">
-                            <h2>{{getNickName(chatSession.name)}}</h2>
+                            <h2>{{getNickName(chatSession)}}</h2>
                             <div class="p">
-                              <p>{{formatTime(chatSession.CreateTime)}}</p>
+                              <p>TODO</p>
                             </div>
                           </div>
                         </li>
@@ -106,9 +106,6 @@
         chatSessions: [],
         chatSessionCounter: 0,
         allContacts: [],
-        allChatSessions: [],
-        allChats: [],
-        chats: [],
         contactsHashObject: {},
         selectedChatSessionInfo: {
           sessionName: null,
@@ -124,55 +121,18 @@
     methods: {
       loadChatSessionData() {
         this.chatSessionCounter = this.chatSessionCounter + 1;
-        const length = Math.min(this.chatSessionCounter * STEP, this.allChatSessions.length);
-        this.chatSessions = this.allChatSessions.slice(0, length);
+        const length = Math.min(this.chatSessionCounter * STEP, this.allContacts.length);
+        this.chatSessions = this.allContacts.slice(0, length);
       },
-      viewChatsOf(chatSessionName) {
-        if (chatSessionName === this.selectedChatSessionInfo.sessionName) {
-          return; // 不重新加载已选中的聊天室信息
-        }
-        this.chats = []; // 切换时，初始化
-        this.allChats = [];
-        this.selectedChatSessionInfo = {
-          sessionName: chatSessionName,
-          displayName: this.getNickName(chatSessionName),
-          headImage: this.getHeadImage(chatSessionName),
-          length: 0,
-        };
-        const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-detail .ichat-detail-c' });
-        WechatService.loadChatsOf(chatSessionName)
-          .then((chats) => {
-            this.allChats = chats;
-            const sevenDaysAgo = WechatService.sevenDaysAgo();
-            this.chats = chats.filter(chat => chat.CreateTime >= sevenDaysAgo); // 7天前
-            this.selectedChatSessionInfo.length = chats.length;
-            loadingInstance.close();
-            setTimeout(() => {
-              this.$refs['ichatMessagesRef'].scrollTop = document.querySelector('.ichat-messages-wrapper').clientHeight; // eslint-disable-line
-            }, 500);
-          }, (error) => {
-            this.$message.error(error);
-            loadingInstance.close();
-          });
-      },
-      getNickName(chatRoomName) {
-        let destination = chatRoomName.substring('Chat_'.length, chatRoomName.length);
-        if (this.contactsHashObject[destination]) {
-          destination = this.contactsHashObject[destination];
-          return WechatService.parseName(destination.dbContactRemark);
-        }
-        return destination;
+      viewChatsOf(chatSessionName) {}, // eslint-disable-line
+      getNickName(contact) {
+        return WechatService.parseName(contact.dbContactRemark);
       },
       parseName(remark) {
         return WechatService.parseName(remark);
       },
-      getHeadImage(chatRoomName) {
-        let destination = chatRoomName.substring('Chat_'.length, chatRoomName.length);
-        if (this.contactsHashObject[destination]) {
-          destination = this.contactsHashObject[destination];
-          return WechatService.parseImage(destination.dbContactHeadImage);
-        }
-        return destination;
+      getHeadImage(contact) {
+        return WechatService.parseImage(contact.dbContactHeadImage);
       },
       queryContacts() {
         if (!this.keyword) {
@@ -209,20 +169,10 @@
       }
       const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-chat-conversation' });
       WechatService.getMessageAndContactFileID()
-        .then(({ messageFileID, contactFileID }) => {
+        .then(({ contactFileID }) => {
           WechatService.getUserContacts(contactFileID)
             .then((contacts) => {
               this.allContacts = contacts || [];
-              this.contactsHashObject = WechatService.getContactsHashObject();
-              this.$store.commit('INIT_CONTACTS', {
-                contacts: this.allContacts,
-                contactsHashObject: this.contactsHashObject,
-                contactsUserNameMapObject: WechatService.getContactsUserNameMapObject(),
-              });
-            });
-          WechatService.getUserChatSessions(messageFileID)
-            .then((chatSessions) => {
-              this.allChatSessions = chatSessions;
               this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
               loadingInstance.close();
             }, (error) => {
