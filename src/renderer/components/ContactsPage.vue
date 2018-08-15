@@ -109,7 +109,7 @@
         contactsHashObject: {},
         selectedChatSessionInfo: {
           sessionName: null,
-          displayName: '微信聊天记录',
+          displayName: '联系人信息',
           headImage: '',
           length: 0,
         },
