@@ -9,6 +9,20 @@ export default new Router({
       path: '/chats-history',
       name: 'chats-history',
       component: require('@/components/LandingPage').default,
+      children: [
+        {
+          path: '/',
+          component: require('@/components/ChatsPage').default,
+        },
+        {
+          path: 'contacts',
+          component: require('@/components/ContactsPage').default,
+        },
+        {
+          path: 'bugs',
+          component: require('@/components/BugsPage').default,
+        },
+      ],
     },
     {
       path: '/',
