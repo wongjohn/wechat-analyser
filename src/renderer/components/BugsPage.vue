@@ -56,7 +56,7 @@
                         <el-table-column prop="detail" label="详细描述">
                           <template slot-scope="scope">
                             <el-input v-if="scope.row.$$editable" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="scope.row.detail"></el-input>
-                            <pre v-else>{{ scope.row.detail }}</pre>
+                            <pre class="detail-description" v-else>{{ scope.row.detail }}</pre>
                           </template>
                         </el-table-column>
                         <el-table-column label="操作">
@@ -117,5 +117,8 @@
 <style>
   .bugs-page-main .ichat-detail {
     margin-left: 0;
+  }
+  .bugs-page-main .detail-description {
+    white-space: pre-line;
   }
 </style>
