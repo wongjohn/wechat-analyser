@@ -13,7 +13,7 @@
                         Bug列表
                       </h2>
                       <div class="operations">
-                        <el-button type="primary" @click="exportBugs" :disabled="!bugs.length">导出Bug列表</el-button>
+                        <el-button icon="el-icon-download" type="primary" @click="exportBugs" :disabled="!bugs.length">导出Bug列表</el-button>
                       </div>
                     </div>
                   </div>
