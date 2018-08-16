@@ -6,7 +6,7 @@ const readFilePath = path.resolve(__dirname, 'alpha__bug_template.xlsx');
 
 let bugs = [];
 
-const MODULES = (['word alpha', 'note', '安装指引', '登录', '账号', 'Chrome浏览器', '大数据',
+const MODULES = (['wordalpha', 'note', '安装指引', '登录', '账号', 'Chrome浏览器', '大数据',
   '收藏夹', '市场拓展', '实践指引', '项目', '服务报告', '任务', '日历', '计时', '工作类型',
   '律助', '文档', 'alphabox', '客户', '行业雷达', '利冲', '合同库', '项目模板', '任务模板',
   '合同模板', '文书模板', '权限', '部门', '安卓', 'iOS', '享聊', '通知', 'km', '客户端',
