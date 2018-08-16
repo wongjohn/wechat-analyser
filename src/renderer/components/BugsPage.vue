@@ -13,7 +13,7 @@
                         Bug列表
                       </h2>
                       <div class="operations">
-                        <el-button type="primary" @click="exportBugs">导出Bug列表</el-button>
+                        <el-button type="primary" @click="exportBugs" :disabled="!bugs.length">导出Bug列表</el-button>
                       </div>
                     </div>
                   </div>
@@ -117,10 +117,5 @@
 <style>
   .bugs-page-main .ichat-detail {
     margin-left: 0;
-  }
-  .ichat-header .operations {
-    position: absolute;
-    top: 6px;
-    right: 18px;
   }
 </style>
