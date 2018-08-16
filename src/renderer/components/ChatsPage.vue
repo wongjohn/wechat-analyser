@@ -235,6 +235,7 @@
         const titleKeys = Object.keys(this.titleSelection);
         if (!titleKeys.length) {
           this.$message.error('请标记某条消息作为"标题"');
+          return;
         }
         let title = '';
         let source = '';
