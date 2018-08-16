@@ -35,7 +35,7 @@
                         </el-table-column>
                         <el-table-column prop="title" label="标题">
                           <template slot-scope="scope">
-                            <el-input v-if="scope.row.$$editable" type="textarea" v-model="scope.row.title"></el-input>
+                            <el-input v-if="scope.row.$$editable" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="scope.row.title"></el-input>
                             <span v-else>{{ scope.row.title }}</span>
                           </template>
                         </el-table-column>
@@ -49,13 +49,13 @@
                         </el-table-column>
                         <el-table-column prop="source" label="来源">
                           <template slot-scope="scope">
-                            <el-input v-if="scope.row.$$editable" type="textarea" v-model="scope.row.source"></el-input>
+                            <el-input v-if="scope.row.$$editable" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="scope.row.source"></el-input>
                             <span v-else>{{ scope.row.source }}</span>
                           </template>
                         </el-table-column>
                         <el-table-column prop="detail" label="详细描述">
                           <template slot-scope="scope">
-                            <el-input v-if="scope.row.$$editable" type="textarea" v-model="scope.row.detail"></el-input>
+                            <el-input v-if="scope.row.$$editable" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="scope.row.detail"></el-input>
                             <span v-else>{{ scope.row.detail }}</span>
                           </template>
                         </el-table-column>
