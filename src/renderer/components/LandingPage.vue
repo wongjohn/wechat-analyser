@@ -496,4 +496,9 @@
   .suggestion-menus.el-popper .no-suggestion {
     display: none;
   }
+  .ichat-header .operations {
+    position: absolute;
+    top: 6px;
+    right: 18px;
+  }
 </style>
