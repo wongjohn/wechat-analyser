@@ -2,6 +2,7 @@ const state = {
   isMultiSelectionMode: false,
   multiSelections: {},
   titleSelection: {},
+  lastChatSessionInfo: null,
 };
 
 const mutations = {
@@ -31,6 +32,9 @@ const mutations = {
   },
   MULTI_SELECTION_CLEAR_TITLE(state) {
     state.titleSelection = {};
+  },
+  LAST_CHAT_SESSION_INFO(state, chatSession) {
+    state.lastChatSessionInfo = chatSession;
   },
 };
 

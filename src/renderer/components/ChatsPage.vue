@@ -117,7 +117,16 @@
         isMultiSelectionMode: state => state.Global.isMultiSelectionMode,
         multiSelections: state => state.Global.multiSelections,
         titleSelection: state => state.Global.titleSelection,
+        lastChatSessionInfo: state => state.Global.lastChatSessionInfo,
       }),
+      selectedChatSessionInfo() {
+        return this.lastChatSessionInfo || {
+          sessionName: null,
+          displayName: '微信聊天记录',
+          headImage: '',
+          length: 0,
+        };
+      },
     },
     data() {
       return {
@@ -128,12 +137,6 @@
         allChats: [],
         chats: [],
         contactsHashObject: {},
-        selectedChatSessionInfo: {
-          sessionName: null,
-          displayName: '微信聊天记录',
-          headImage: '',
-          length: 0,
-        },
         keyword: '',
         contacts: [],
         debounceId: '',
@@ -147,24 +150,29 @@
         this.chatSessions = this.allChatSessions.slice(0, length);
       },
       viewChatsOf(chatSessionName) {
-        if (chatSessionName === this.selectedChatSessionInfo.sessionName) {
+        if (!chatSessionName) {
           return; // 不重新加载已选中的聊天室信息
         }
         this.chats = []; // 切换时，初始化
         this.allChats = [];
-        this.selectedChatSessionInfo = {
+        this.$store.commit('LAST_CHAT_SESSION_INFO', {
           sessionName: chatSessionName,
           displayName: this.getNickName(chatSessionName),
           headImage: this.getHeadImage(chatSessionName),
           length: 0,
-        };
+        });
         const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-detail .ichat-detail-c' });
         WechatService.loadChatsOf(chatSessionName)
           .then((chats) => {
             this.allChats = chats;
             const sevenDaysAgo = WechatService.sevenDaysAgo();
             this.chats = chats.filter(chat => chat.CreateTime >= sevenDaysAgo); // 7天前
-            this.selectedChatSessionInfo.length = chats.length;
+            this.$store.commit('LAST_CHAT_SESSION_INFO', {
+              sessionName: chatSessionName,
+              displayName: this.getNickName(chatSessionName),
+              headImage: this.getHeadImage(chatSessionName),
+              length: chats.length,
+            });
             loadingInstance.close();
             setTimeout(() => {
               this.$refs['ichatMessagesRef'].scrollTop = document.querySelector('.ichat-messages-wrapper').clientHeight; // eslint-disable-line
@@ -288,6 +296,7 @@
             .then((chatSessions) => {
               this.allChatSessions = chatSessions;
               this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+              this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
               loadingInstance.close();
             }, (error) => {
               this.$message.error(error);
