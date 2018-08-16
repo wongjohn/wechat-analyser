@@ -27,7 +27,9 @@
                         <el-table-column type="selection" width="55"></el-table-column>
                         <el-table-column prop="module" label="模块">
                           <template slot-scope="scope">
-                            <el-input v-if="scope.row.$$editable" type="textarea" v-model="scope.row.module"></el-input>
+                            <el-select v-if="scope.row.$$editable" v-model="scope.row.module" placeholder="请选择模块">
+                              <el-option v-for="item in modules" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
                             <span v-else>{{ scope.row.module }}</span>
                           </template>
                         </el-table-column>
@@ -39,7 +41,9 @@
                         </el-table-column>
                         <el-table-column prop="type" label="类别">
                           <template slot-scope="scope">
-                            <el-input v-if="scope.row.$$editable" type="textarea" v-model="scope.row.type"></el-input>
+                            <el-select v-if="scope.row.$$editable" v-model="scope.row.type" placeholder="请选择类别">
+                              <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
                             <span v-else>{{ scope.row.type }}</span>
                           </template>
                         </el-table-column>
@@ -82,6 +86,8 @@
     data() {
       return {
         bugs: bugService.getBugs(),
+        modules: bugService.getModules(),
+        types: bugService.getTypes(),
       };
     },
     methods: {
