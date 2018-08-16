@@ -256,6 +256,8 @@
         });
         this.$message.success('消息已经记录到Bug列表');
         this.$store.commit('MULTI_SELECTION_MODE_OFF');
+        this.$store.commit('MULTI_SELECTION_CLEAR_SELECTION');
+        this.$store.commit('MULTI_SELECTION_CLEAR_TITLE');
       },
     },
     mounted() {
