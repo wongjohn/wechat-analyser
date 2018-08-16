@@ -89,7 +89,7 @@ function createWindow() {
    */
   mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
-    height: 563,
+    height: 666,
     useContentSize: true,
     width: 1000,
     webPreferences: {
