@@ -65,7 +65,7 @@ export default {
       });
     },
     addMessageAsBug() {
-      this.$store.commit('MULTI_SELECTION_ADD_SELECTION', {
+      this.$store.commit('MULTI_SELECTION_TOGGLE_SELECTION', {
         id: this.chat.MesLocalID,
         module: '',
         title: this.message,
