@@ -70,6 +70,7 @@
                       <div class="operations">
                         <el-button icon="el-icon-setting" @click="seeAll" :disabled="!selectedChatSessionInfo.sessionName">查看全部</el-button>
                         <el-button icon="el-icon-check" type="success" @click="confirmEdit" v-if="isMultiSelectionMode">确定</el-button>
+                        <el-button icon="el-icon-close" @click="cancelEdit" v-if="isMultiSelectionMode">取消</el-button>
                         <el-button icon="el-icon-edit" type="primary" @click="editMessage" v-else :disabled="!chats.length">多选</el-button>
                       </div>
                     </div>
@@ -255,6 +256,11 @@
           detail: message,
         });
         this.$message.success('消息已经记录到Bug列表');
+        this.$store.commit('MULTI_SELECTION_MODE_OFF');
+        this.$store.commit('MULTI_SELECTION_CLEAR_SELECTION');
+        this.$store.commit('MULTI_SELECTION_CLEAR_TITLE');
+      },
+      cancelEdit() {
         this.$store.commit('MULTI_SELECTION_MODE_OFF');
         this.$store.commit('MULTI_SELECTION_CLEAR_SELECTION');
         this.$store.commit('MULTI_SELECTION_CLEAR_TITLE');
