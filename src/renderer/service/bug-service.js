@@ -2,7 +2,7 @@ import { Message } from 'element-ui/lib';
 const Excel = require('exceljs');
 const path = require('path');
 const os = require('os');
-const readFilePath = path.resolve(__dirname, '../assets/alpha__bug_template.xlsx');
+const readFilePath = path.resolve(__dirname, 'alpha__bug_template.xlsx');
 
 let bugs = [];
 
