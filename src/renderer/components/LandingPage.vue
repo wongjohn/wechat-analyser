@@ -501,4 +501,7 @@
     top: 6px;
     right: 18px;
   }
+  .multi-selection-mode.ichat-message-ope {
+    display: block;
+  }
 </style>

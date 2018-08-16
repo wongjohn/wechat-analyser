@@ -67,6 +67,11 @@
                         {{selectedChatSessionInfo.displayName}}
                         <span>({{selectedChatSessionInfo.length}})</span>
                       </h2>
+                      <div class="operations">
+                        <el-button icon="el-icon-setting" @click="seeAll" :disabled="!selectedChatSessionInfo.sessionName">查看全部</el-button>
+                        <el-button icon="el-icon-check" type="success" @click="confirmEdit" v-if="isMultiSelectionMode">确定</el-button>
+                        <el-button icon="el-icon-edit" type="primary" @click="editMessage" v-else :disabled="!chats.length">多选</el-button>
+                      </div>
                     </div>
                     <div class="ichat-header-menu">
                       <a><i class="icon iui-icon iui-icon-more"></i></a>
@@ -98,12 +103,21 @@
 
 <script>
   import { Loading } from 'element-ui';
+  import { mapState } from 'vuex';
   import WechatService from '../service/wechat-service';
+  import bugService from '../service/bug-service';
   import Message from './message';
   const STEP = 20; // 一次加载20条
   export default {
     name: 'chats-page',
     components: { Message },
+    computed: {
+      ...mapState({
+        isMultiSelectionMode: state => state.Global.isMultiSelectionMode,
+        multiSelections: state => state.Global.multiSelections,
+        titleSelection: state => state.Global.titleSelection,
+      }),
+    },
     data() {
       return {
         chatSessions: [],
@@ -122,6 +136,7 @@
         keyword: '',
         contacts: [],
         debounceId: '',
+        bugMessages: [],
       };
     },
     methods: {
@@ -204,6 +219,43 @@
         this.viewChatsOf(`Chat_${WechatService.md5(contact.userName)}`);
       },
       formatTime: WechatService.formatTime,
+      seeAll() {
+        const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-detail .ichat-detail-c' });
+        setTimeout(() => {
+          this.chats = [...this.allChats];
+        }, 100);
+        setTimeout(() => {
+          loadingInstance.close();
+        }, 200);
+      },
+      editMessage() {
+        this.$store.commit('MULTI_SELECTION_MODE_ON');
+      },
+      confirmEdit() {
+        const titleKeys = Object.keys(this.titleSelection);
+        if (!titleKeys.length) {
+          this.$message.error('请标记某条消息作为"标题"');
+        }
+        let title = '';
+        let source = '';
+        titleKeys.forEach((key) => {
+          title = this.titleSelection[key].title;
+          source = this.titleSelection[key].source;
+        });
+        let message = title;
+        Object.keys(this.multiSelections).forEach((key) => {
+          message += `\n${this.multiSelections[key].detail}`;
+        });
+        bugService.addBug({
+          module: '',
+          title,
+          type: '',
+          source,
+          detail: message,
+        });
+        this.$message.success('消息已经记录到Bug列表');
+        this.$store.commit('MULTI_SELECTION_MODE_OFF');
+      },
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
@@ -233,6 +285,11 @@
               loadingInstance.close();
             });
         });
+    },
+    beforeDestroy() {
+      this.$store.commit('MULTI_SELECTION_MODE_OFF');
+      this.$store.commit('MULTI_SELECTION_CLEAR_SELECTION');
+      this.$store.commit('MULTI_SELECTION_CLEAR_TITLE');
     },
   };
 </script>

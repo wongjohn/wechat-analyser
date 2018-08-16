@@ -11,6 +11,9 @@ export default {
   computed: {
     ...mapState({
       contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
+      isMultiSelectionMode: state => state.Global.isMultiSelectionMode,
+      multiSelections: state => state.Global.multiSelections,
+      titleSelection: state => state.Global.titleSelection,
     }),
     messageTime() {
       return moment(new Date(this.chat.CreateTime * 1000)).format('YYYY-MM-DD HH:mm:ss');
@@ -42,6 +45,34 @@ export default {
         return this.sessionInfo.headImage;
       }
       return DEFAULT_HEAD_IMAGE;
+    },
+    isTitle() {
+      return !!this.titleSelection[this.chat.MesLocalID];
+    },
+    isSelected() {
+      return !!this.multiSelections[this.chat.MesLocalID];
+    },
+  },
+  methods: {
+    markMessageAsTitle() {
+      this.$store.commit('MULTI_SELECTION_ADD_TITLE', {
+        id: this.chat.MesLocalID,
+        module: '',
+        title: this.message,
+        type: '',
+        source: `${this.sessionInfo.displayName} - ${this.displayName}`,
+        detail: this.message,
+      });
+    },
+    addMessageAsBug() {
+      this.$store.commit('MULTI_SELECTION_ADD_SELECTION', {
+        id: this.chat.MesLocalID,
+        module: '',
+        title: this.message,
+        type: '',
+        source: `${this.sessionInfo.displayName} - ${this.displayName}`,
+        detail: this.message,
+      });
     },
   },
 };

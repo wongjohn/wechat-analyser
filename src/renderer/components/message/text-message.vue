@@ -7,19 +7,22 @@
             <div class="ichat-message-content-h">
                 <h4>{{ displayName }}</h4>
                 <div class="ichat-message-time">{{messageTime}}</div>
-                <div class="ichat-message-time-star">
-                    <a class="starBox"><!----> <!---->
-                        <i class="star iui-icon iui-icon-star"></i>
+                <div class="ichat-message-ope multi-selection-mode" v-if="isMultiSelectionMode"><!---->
+                    <a class="iui-tooltip">
+                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="markMessageAsTitle">
+                            <i :class="{'el-icon-star-off': !isTitle, 'el-icon-star-on': isTitle}"></i> 作为标题</div>
+                    </a>
+                    <a class="iui-tooltip">
+                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="addMessageAsBug">
+                            <i :class="{'el-icon-circle-check-outline': !isSelected, 'el-icon-circle-check': isSelected}"></i> 选择</div>
                     </a>
                 </div>
-                <div class="ichat-message-ope"><!---->
+                <div class="ichat-message-ope" v-else><!---->
                     <a class="iui-tooltip">
-                        <i class="iui-icon iui-icon-pin"></i>
-                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="copyText">复制</div>
+                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="copyText"><i class="el-icon-info"></i> 复制</div>
                     </a>
                     <a class="iui-tooltip">
-                        <i class="iui-icon iui-icon-task-pad"></i>
-                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="addBug">记录Bug</div>
+                        <div class="iui-tooltip-c" style="margin-left: 0px;" @click="addBug"><i class="el-icon-warning"></i> 记录Bug</div>
                     </a>
                 </div>
             </div>
@@ -41,22 +44,6 @@
   import bugService from '../../service/bug-service';
   const TextMessage = Object.assign({}, Core, {
     name: 'text-message',
-    methods: {
-      copyText() {
-        clipboard.writeText(this.message);
-        this.$message.success('消息已经拷贝到剪贴板');
-      },
-      addBug() {
-        this.$message.success('消息已经记录到Bug列表');
-        bugService.addBug({
-          module: '',
-          title: this.message,
-          type: '',
-          source: `${this.sessionInfo.displayName} - ${this.displayName}`,
-          detail: this.message,
-        });
-      },
-    },
   });
 
   TextMessage.computed = Object.assign({}, TextMessage.computed, {
@@ -69,6 +56,23 @@
         return this.chat.Message;
       }
       return this.chat.Message;
+    },
+  });
+
+  TextMessage.methods = Object.assign({}, TextMessage.methods, {
+    copyText() {
+      clipboard.writeText(this.message);
+      this.$message.success('消息已经拷贝到剪贴板');
+    },
+    addBug() {
+      bugService.addBug({
+        module: '',
+        title: this.message,
+        type: '',
+        source: `${this.sessionInfo.displayName} - ${this.displayName}`,
+        detail: this.message,
+      });
+      this.$message.success('消息已经记录到Bug列表');
     },
   });
 

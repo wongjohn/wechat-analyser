@@ -56,7 +56,7 @@
                         <el-table-column prop="detail" label="详细描述">
                           <template slot-scope="scope">
                             <el-input v-if="scope.row.$$editable" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="scope.row.detail"></el-input>
-                            <span v-else>{{ scope.row.detail }}</span>
+                            <pre v-else>{{ scope.row.detail }}</pre>
                           </template>
                         </el-table-column>
                         <el-table-column label="操作">
