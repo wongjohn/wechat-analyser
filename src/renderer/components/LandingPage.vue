@@ -483,6 +483,12 @@
     border-radius: 5px;
     transition: background .15s ease;
   }
+  .ichat-message-content-img img {
+    height: 100%;
+    opacity: 0;
+    background: #f1f1f1;
+    transition: opacity .15s ease;
+  }
   .ichat-message-content-img img.success {
     opacity: 1;
     width: auto;
