@@ -118,6 +118,10 @@
         multiSelections: state => state.Global.multiSelections,
         titleSelection: state => state.Global.titleSelection,
         lastChatSessionInfo: state => state.Global.lastChatSessionInfo,
+        allContacts: state => state.Contacts.contacts,
+        contactsHashObject: state => state.Contacts.contactsHashObject,
+        contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
+        allChatSessions: state => state.ChatSessions.allChatSessions,
       }),
       selectedChatSessionInfo() {
         return this.lastChatSessionInfo || {
@@ -132,16 +136,21 @@
       return {
         chatSessions: [],
         chatSessionCounter: 0,
-        allContacts: [],
-        allChatSessions: [],
         allChats: [],
         chats: [],
-        contactsHashObject: {},
         keyword: '',
         contacts: [],
         debounceId: '',
         bugMessages: [],
       };
+    },
+    watch: {
+      allChatSessions() {
+        if (this.allChatSessions.length) {
+          this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+          this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
+        }
+      },
     },
     methods: {
       loadChatSessionData() {
@@ -277,32 +286,11 @@
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
-        return;
       }
-      const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper .ichat-chat-conversation' });
-      WechatService.getMessageAndContactFileID()
-        .then(({ messageFileID, contactFileID }) => {
-          WechatService.getUserContacts(contactFileID)
-            .then((contacts) => {
-              this.allContacts = contacts || [];
-              this.contactsHashObject = WechatService.getContactsHashObject();
-              this.$store.commit('INIT_CONTACTS', {
-                contacts: this.allContacts,
-                contactsHashObject: this.contactsHashObject,
-                contactsUserNameMapObject: WechatService.getContactsUserNameMapObject(),
-              });
-            });
-          WechatService.getUserChatSessions(messageFileID)
-            .then((chatSessions) => {
-              this.allChatSessions = chatSessions;
-              this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
-              this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
-              loadingInstance.close();
-            }, (error) => {
-              this.$message.error(error);
-              loadingInstance.close();
-            });
-        });
+      if (this.allChatSessions.length) {
+        this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+        this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
+      }
     },
     beforeDestroy() {
       this.$store.commit('MULTI_SELECTION_MODE_OFF');

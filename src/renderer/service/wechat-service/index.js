@@ -21,6 +21,9 @@ let contactsHashObject; // 使用Hash形式、读取内容
  */
 function getMessageAndContactFileID() {
   return new Promise((resolve, reject) => {
+    if (!SELECTED_BACKUP_FOLDER_PATH) {
+      reject('没有选择手机备份');
+    }
     const db = new sqlite3.Database(
       path.resolve(SELECTED_BACKUP_FOLDER_PATH, C.MANIFEST_FILE), sqlite3.OPEN_READONLY);
 

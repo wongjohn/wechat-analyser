@@ -1,7 +1,11 @@
 const state = {
+  /** Bug记录时，多选模式状态位 */
   isMultiSelectionMode: false,
+  /** Bug记录时，多选模式下的各个记录选择 */
   multiSelections: {},
+  /** Bug记录时，多选模式下的标题选择 */
   titleSelection: {},
+  /** 上一次选择的聊天记录 */
   lastChatSessionInfo: null,
 };
 

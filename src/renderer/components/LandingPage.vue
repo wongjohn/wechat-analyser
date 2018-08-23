@@ -15,8 +15,36 @@
 </template>
 
 <script>
+  import { Loading } from 'element-ui';
+  import WechatService from '../service/wechat-service';
   export default {
     name: 'landing-page',
+    mounted() {
+      const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
+      WechatService.getMessageAndContactFileID()
+        .then(({ messageFileID, contactFileID }) => {
+          WechatService.getUserContacts(contactFileID)
+            .then((contacts) => {
+              const allContacts = contacts || [];
+              const contactsHashObject = WechatService.getContactsHashObject();
+              this.$store.commit('INIT_CONTACTS', {
+                contacts: allContacts,
+                contactsHashObject,
+                contactsUserNameMapObject: WechatService.getContactsUserNameMapObject(),
+              });
+            });
+          WechatService.getUserChatSessions(messageFileID)
+            .then((chatSessions) => {
+              this.$store.commit('INIT_CHAT_SESSIONS', {
+                allChatSessions: chatSessions,
+              });
+              loadingInstance.close();
+            }, (error) => {
+              this.$message.error(error);
+              loadingInstance.close();
+            });
+        });
+    },
   };
 </script>
 
