@@ -1,11 +1,15 @@
 import moment from 'moment';
-import * as C from '../../constants/index';
+import { Message } from 'element-ui/lib';
+import * as C from '../constants/index';
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const plist = require('plist');
 const sqlite3 = require('sqlite3').verbose();
 const md5 = require('md5');
+const Excel = require('exceljs');
+const exec = require('child_process').exec;
+const readFilePath = path.resolve(__dirname, 'contacts_template.xlsx');
 
 const MOBILE_BACKUP_FOLDER_PATH = path.resolve(os.homedir(), C.ROOT_DIR);
 let SELECTED_BACKUP_FOLDER_PATH;
@@ -15,6 +19,37 @@ let contactFileID; // 通讯录文件ID
 let contacts; // 通讯录
 let chats; // 聊天
 let contactsHashObject; // 使用Hash形式、读取内容
+
+const JOEs = [
+  'weibo', 'qqmail', 'fmessage', 'tmessage', 'qmessage',
+  'qqsync', 'floatbottle', 'lbsapp', 'shakeapp', 'medianote',
+  'qqfriend', 'readerapp', 'blogapp', 'facebookapp', 'masssendapp',
+  'meishiapp', 'feedsapp', 'voip', 'blogappweixin', 'weixin',
+  'brandsessionholder', 'weixinreminder', 'wxid_novlwrv3lqwv11',
+  'gh_22b87fa7cb3c', 'officialaccounts', 'notification_messages',
+];
+
+const JOEl = [
+  'newsapp', 'wxid_novlwrv3lqwv11',
+  'gh_22b87fa7cb3c', 'notification_messages',
+];
+
+const isRoomContact = e => !!e && /^@@|@chatroom$/.test(e);
+
+const isSpUser = (e) => {
+  for (let t = 0, a = JOEs.length; t < a; t++) { // eslint-disable-line
+    if (JOEs[t] === e || /@qqim$/.test(e)) { return !0; }
+  }
+  return !1;
+};
+
+const isShieldUser = (e) => {
+  if (/@lbsroom$/.test(e) || /@talkroom$/.test(e)) { return !0; }
+  for (let t = 0, a = JOEl.length; t < a; t++) { // eslint-disable-line
+    if (JOEl[t] === e) { return !0; }
+  }
+  return !1;
+};
 
 /**
  * 消息文件ID/通讯录文件ID
@@ -211,6 +246,26 @@ function sevenDaysAgo() {
   return sevenDaysAgo.toDate().getTime() / 1000;
 }
 
+function exportContacts(contacts) {
+  return new Promise((resolve, reject) => {
+    const workbook = new Excel.Workbook();
+    workbook.xlsx.readFile(readFilePath)
+      .then(() => {
+        const worksheet = workbook.getWorksheet(1);
+        contacts.forEach((bug) => {
+          worksheet.addRow([bug.nickName, bug.lastTime, bug.image]);
+        });
+        const genDir = path.resolve(os.homedir(), `Downloads/联系人-${(new Date()).getTime()}.xlsx`);
+        workbook.xlsx.writeFile(genDir);
+        Message.success('联系人文档生成完毕');
+        resolve();
+        exec('open .', { cwd: path.dirname(genDir) });
+      }, (error) => {
+        reject(error);
+      });
+  });
+}
+
 export default {
   /**
    * 消息文件ID/通讯录文件ID
@@ -292,4 +347,8 @@ export default {
   md5,
   formatTime,
   sevenDaysAgo,
+  exportContacts,
+  isRoomContact,
+  isSpUser,
+  isShieldUser,
 };
