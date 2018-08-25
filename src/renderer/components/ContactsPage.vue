@@ -30,13 +30,13 @@
                           <el-table :data="currentContacts" border stripe
                                     height="calc(100vh - 60px)" style="width: 100%;">
                             <el-table-column type="selection" width="55"></el-table-column>
-                            <el-table-column prop="image" label="头像">
-                              <template slot-scope="scope">
-                                <div class="img group">
-                                  <img :src="scope.row.image">
-                                </div>
-                              </template>
-                            </el-table-column>
+                            <!--<el-table-column prop="image" label="头像">-->
+                              <!--<template slot-scope="scope">-->
+                                <!--<div class="img group">-->
+                                  <!--<img :src="scope.row.image">-->
+                                <!--</div>-->
+                              <!--</template>-->
+                            <!--</el-table-column>-->
                             <el-table-column prop="nickName" label="名称">
                               <template slot-scope="scope">
                                 <span class="nickname">{{scope.row.nickName}}</span>
@@ -47,6 +47,27 @@
                                 <span class="last-time">{{scope.row.lastTime}}</span>
                               </template>
                             </el-table-column>
+                            <el-table-column prop="joinTime" label="加入时间">
+                              <template slot-scope="scope">
+                                <span class="last-time">{{scope.row.joinTime}}</span>
+                              </template>
+                            </el-table-column>
+                            <el-table-column prop="messager0" label="印象发送人">
+                              <template slot-scope="scope">
+                                <span class="last-time">{{scope.row.messager0}}</span>
+                              </template>
+                            </el-table-column>
+                            <el-table-column prop="messageTime0" label="印象发送时间">
+                              <template slot-scope="scope">
+                                <span class="last-time">{{scope.row.messageTime0}}</span>
+                              </template>
+                            </el-table-column>
+                            <el-table-column prop="message0" label="印象消息">
+                              <template slot-scope="scope">
+                                <span class="last-time">{{scope.row.message0}}</span>
+                              </template>
+                            </el-table-column>
+
                           </el-table>
                         </div>
                         <div class="empty-message" v-else>
@@ -66,9 +87,11 @@
 </template>
 
 <script>
+  import { Loading } from 'element-ui';
   import { mapState } from 'vuex';
   import WechatService from '../service/wechat-service';
   import Message from './message';
+  import { REG_EXP } from '../constants';
   export default {
     name: 'contacts-page',
     components: { Message },
@@ -77,7 +100,6 @@
         allContacts: state => state.Contacts.contacts,
         contactsHashObject: state => state.Contacts.contactsHashObject,
         contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
-        allChatSessions: state => state.ChatSessions.allChatSessions,
       }),
       currentContacts() {
         const groupSession = [];
@@ -92,13 +114,38 @@
                 image: WechatService.parseImage(destination.dbContactHeadImage),
                 nickName: WechatService.parseName(destination.dbContactRemark),
                 lastTime: WechatService.formatTime(chatSession.CreateTime),
+                joinTime: WechatService.formatTime(chatSession.JoinTime),
               };
+              [0, 1, 2].forEach((index) => {
+                let messager;
+                let message;
+                if (chatSession[`Des${index}`] && chatSession[`Message${index}`] && REG_EXP.test(chatSession[`Message${index}`])) {
+                  const [, userName] = REG_EXP.exec(chatSession[`Message${index}`]);
+                  if (this.contactsUserNameMapObject[userName]) {
+                    messager = WechatService.parseName(
+                      this.contactsUserNameMapObject[userName].dbContactRemark);
+                    message = chatSession[`Message${index}`].substring(userName.length + 2,
+                      chatSession[`Message${index}`].length);
+                  }
+                } else {
+                  message = chatSession[`Message${index}`];
+                }
+                chatSessionInfo[`messager${index}`] = messager;
+                chatSessionInfo[`messageTime${index}`] = chatSession[`MessageTime${index}`] &&
+                  WechatService.formatTime(chatSession[`MessageTime${index}`]);
+                chatSessionInfo[`message${index}`] = message;
+              });
               groupSession.push(chatSessionInfo);
             }
           }
         });
         return groupSession;
       },
+    },
+    data() {
+      return {
+        allChatSessions: [],
+      };
     },
     methods: {
       exportContacts() {
@@ -114,6 +161,18 @@
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
       }
+      const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
+      WechatService.getMessageAndContactFileID()
+        .then(({ messageFileID }) => {
+          WechatService.getUserChatSessionContacts(messageFileID)
+            .then((chatSessions) => {
+              this.allChatSessions = chatSessions;
+              loadingInstance.close();
+            }, (error) => {
+              this.$message.error(error);
+              loadingInstance.close();
+            });
+        });
     },
   };
 </script>

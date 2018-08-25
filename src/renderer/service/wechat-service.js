@@ -209,6 +209,72 @@ function getUserChatSessions(messageFileID) {
   });
 }
 
+/**
+ * 根据messageFileID、获取聊天信息
+ * @param messageFileID
+ */
+function getUserChatSessionContacts(messageFileID) {
+  return new Promise((resolve, reject) => {
+    const messageFolderName = messageFileID.substr(0, 2);
+    const db = new sqlite3.Database(
+      path.resolve(SELECTED_BACKUP_FOLDER_PATH, messageFolderName, messageFileID),
+      sqlite3.OPEN_READONLY);
+
+    db.all(`
+    SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Chat_%'
+    AND name NOT LIKE 'ChatExt%' order by rootpage desc`, (error, rows) => {
+      if (!error) {
+        chats = rows;
+        const promises = [];
+        rows.forEach((row) => {
+          let res;
+          let rej;
+          let resM;
+          let rejM;
+          promises.push(Promise.all([new Promise((_resolve, _reject) => {
+            res = _resolve;
+            rej = _reject;
+          }), new Promise((_resolve, _reject) => {
+            resM = _resolve;
+            rejM = _reject;
+          })]));
+          db.get(`select max(CreateTime) as CreateTime, min(CreateTime) as JoinTime from ${row.name} where DES = 1`, (err, record) => {
+            if (!err) {
+              row.CreateTime = record.CreateTime;
+              row.JoinTime = record.JoinTime;
+              res(row);
+            } else {
+              rej(err);
+            }
+          });
+          db.all(`select CreateTime, Message, Des from ${row.name} where Message like '%团队%印象%' or Message like '%律所%印象%' or Message like '%律师%印象%'`, (err, records) => {
+            if (!err) {
+              if (records.length) {
+                records.reverse().forEach((record, index) => {
+                  row[`Message${index}`] = record.Message;
+                  row[`MessageTime${index}`] = record.CreateTime;
+                  row[`Des${index}`] = record.Des;
+                });
+              }
+              resM(row);
+            } else {
+              rejM(err);
+            }
+          });
+        });
+        Promise.all(promises)
+          .then(() => {
+            resolve(rows.sort((a, b) => b.CreateTime - a.CreateTime));
+          });
+      } else {
+        reject(error);
+      }
+    });
+
+    db.close();
+  });
+}
+
 function queryContacts(keyword) {
   return new Promise((resolve, reject) => {
     const contactFolderName = contactFileID.substr(0, 2);
@@ -253,7 +319,11 @@ function exportContacts(contacts) {
       .then(() => {
         const worksheet = workbook.getWorksheet(1);
         contacts.forEach((bug) => {
-          worksheet.addRow([bug.nickName, bug.lastTime, bug.image]);
+          worksheet.addRow([bug.nickName, bug.lastTime, bug.joinTime,
+            bug.messager0, bug.messageTime0, bug.message0,
+            bug.messager1, bug.messageTime1, bug.message1,
+            bug.messager2, bug.messageTime2, bug.message2,
+          ]);
         });
         const genDir = path.resolve(os.homedir(), `Downloads/联系人-${(new Date()).getTime()}.xlsx`);
         workbook.xlsx.writeFile(genDir);
@@ -351,4 +421,5 @@ export default {
   isRoomContact,
   isSpUser,
   isShieldUser,
+  getUserChatSessionContacts,
 };
