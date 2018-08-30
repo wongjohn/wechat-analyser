@@ -82,7 +82,7 @@
       <div class="ichat-message" v-if="currentUser && message">
         <div class="ichat-message-content withhover">
           <div class="ichat-message-content-h">
-            <h4>向微信号—— {{currentUser.nickName}} ——发送消息</h4>
+            <h4>向微信号—— "{{currentUser.nickName}}" ——发送消息</h4>
           </div>
         </div>
       </div>
