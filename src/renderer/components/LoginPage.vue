@@ -73,6 +73,23 @@
         </div>
       </div>
     </section>
+
+    <el-dialog title="添加超链接消息" :visible.sync="dialogVisible" width="500px" >
+      <div class="">
+        消息之间延迟
+        <el-slider v-model="delaySeconds" show-input :max="600"></el-slider>
+      </div>
+      <div class="ichat-message" v-if="currentUser && message">
+        <div class="ichat-message-content withhover">
+          <div class="ichat-message-content-h">
+            <h4>向微信号—— {{currentUser.nickName}} ——发送消息</h4>
+          </div>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer" style="width: 100px;margin: 0 auto;">
+        <el-button icon="el-icon-close" type="danger" @click="dialogVisible = false">取消</el-button>
+      </div>
+    </el-dialog>
   </main>
 </template>
 
@@ -84,6 +101,7 @@
   import WechatService from '../service/wechat-service';
   import Message from './message';
   import BatchMessage from './batch/batch-message';
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   export default {
     name: 'login-page',
     components: { Message, BatchMessage },
@@ -125,6 +143,11 @@
         currentTab: 'login',
         multipleSelection: [],
         messages: [],
+        dialogVisible: false,
+        delaySeconds: 6,
+        currentUser: null,
+        message: null,
+        userIndex: 0,
       };
     },
     watch: {
@@ -156,11 +179,16 @@
           this.$message.error('请选择要发送的消息');
           return;
         }
+        this.dialogVisible = true;
+        this.userIndex = 0;
         this.sendRealMessage();
       },
       async sendRealMessage() {
-        this.multipleSelection.forEach(async (user) => {
+        const user = this.multipleSelection[this.userIndex];
+        if (user && this.dialogVisible) {
+          this.currentUser = user;
           this.messages.forEach(async (message) => {
+            this.message = message;
             switch (message.mType) {
               case 1: // 文本
                 await WechatPadService.getWx().sendMsg(user.userName,
@@ -175,8 +203,13 @@
               default:
               // Do nothing
             }
+            await sleep(200);
           });
-        });
+          this.userIndex += 1;
+          if (this.userIndex < this.multipleSelection.length) {
+            setTimeout(this.sendRealMessage.bind(this), this.delaySeconds * 1000);
+          }
+        }
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
