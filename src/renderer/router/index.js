@@ -22,6 +22,10 @@ export default new Router({
           path: 'bugs',
           component: require('@/components/BugsPage').default,
         },
+        {
+          path: 'login',
+          component: require('@/components/LoginPage').default,
+        },
       ],
     },
     {

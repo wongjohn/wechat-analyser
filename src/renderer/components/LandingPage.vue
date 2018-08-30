@@ -2,9 +2,9 @@
   <div id="wrapper" class="main native">
     <main class="main-h">
       <div class="main-menu">
-        <a class="main-menu-mine">
+        <router-link to="/chats-history/login" class="main-menu-mine">
           <img src="http://wx.qlogo.cn/mmhead/ver_1/ozntzvibcWdPugmdr7ngLwLkuUt2L6sel2nLbH4pXu4opERGCicDHsvgR7kzWBMY8EibggYnqg9of4wVLIQNZywHdmlPV8tMwK3lvQb2UbN7GQ/132">
-        </a>
+        </router-link>
         <router-link to="/chats-history" exact class="main-menu-chat"><i></i></router-link>
         <router-link to="/chats-history/contacts" class="main-menu-customer"><i></i></router-link>
         <router-link to="/chats-history/bugs" class="main-menu-task"><i></i></router-link>
