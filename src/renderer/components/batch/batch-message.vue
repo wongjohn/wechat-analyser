@@ -45,6 +45,10 @@
           <div class="ichat-message-content-h">
             <h4>小橙子</h4>
             <div class="ichat-message-ope multi-selection-mode"><!---->
+              <a class="iui-tooltip" v-if="message.mType !== 3">
+                <div class="iui-tooltip-c" style="margin-left: 0px;" @click="editMessage(message)">
+                  <i class="el-icon-edit"></i> 编辑</div>
+              </a>
               <a class="iui-tooltip">
                 <div class="iui-tooltip-c" style="margin-left: 0px;" @click="deleteMessage(index)">
                   <i class="el-icon-delete"></i> 删除</div>
@@ -84,7 +88,7 @@
         v-model="textMessage">
       </el-input>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="closeTextDialog">取 消</el-button>
         <el-button type="primary" @click="addTextMsg">确 定</el-button>
       </span>
     </el-dialog>
@@ -96,7 +100,7 @@
       <el-input placeholder="缩略图地址" v-model="thumburl" />
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="appDialogVisible = false">取 消</el-button>
+        <el-button @click="closeAppDialog">取 消</el-button>
         <el-button type="primary" @click="addAppMsg">确 定</el-button>
       </span>
     </el-dialog>
@@ -150,10 +154,12 @@
 
         // value: { mType, content }
         this.$emit('change', [...this.messages, { mType: 1, content }]);
+        this.closeTextDialog();
+      },
+      closeTextDialog() {
         this.textMessage = '';
         this.dialogVisible = false;
       },
-
       addImgMsg() {
         this.$refs.imgFiles.value = '';
         this.$refs.imgFiles.click();
@@ -163,13 +169,15 @@
         const { title, des, url, thumburl } = this;
         // value: { mType, content }
         this.$emit('change', [...this.messages, { mType: 49, content: { title, des, url, thumburl } }]);
+        this.closeAppDialog();
+      },
+      closeAppDialog() {
         this.title = '';
         this.des = '';
         this.url = '';
         this.thumburl = '';
         this.appDialogVisible = false;
       },
-
       // sendImgInput change
       previewFiles() {
         const files = this.$refs.imgFiles.files;
@@ -222,6 +230,18 @@
         const messages = [...this.messages];
         messages.splice(index, 1);
         this.$emit('change', messages);
+      },
+      editMessage(message) {
+        if (message.mType === 1) {
+          this.textMessage = message.content;
+          this.dialogVisible = true;
+        } else if (message.mType === 49) {
+          this.title = message.content.title;
+          this.des = message.content.des;
+          this.url = message.content.url;
+          this.thumburl = message.content.thumburl;
+          this.appDialogVisible = true;
+        }
       },
       clearAllMessages() {
         this.messages = [];
