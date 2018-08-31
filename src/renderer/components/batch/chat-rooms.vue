@@ -1,5 +1,6 @@
 <template>
-  <div class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
+  <div id="chatRooms" class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
+    <div class="tips">已经选中 {{pageSelectionArray.length}} 个群</div>
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -13,6 +14,7 @@
       <div v-if="loading" v-loading.lock="loading"></div>
       <div class="chat-sessions" v-if="pageContacts && pageContacts.length">
         <el-table :data="pageContacts" border stripe
+                  ref="multipleTable"
                   @selection-change="handleSelectionChange"
                   height="calc(100vh - 92px)" style="width: 100%;">
           <el-table-column type="selection" width="55"></el-table-column>
@@ -93,8 +95,10 @@
         allChatSessions: [],
         currentPage: 1,
         pageSizes: [10, 20, 30, 40, 50, 100, 200, 300, 400, 500],
-        pageSize: 10,
+        pageSize: 100,
         pageContacts: [],
+        pageSelection: {},
+        pageSelectionArray: [],
       };
     },
     methods: {
@@ -106,10 +110,22 @@
           const max = currentPage * pageSize;
           this.pageContacts = this.currentContacts.filter(
             (contact, index) => index >= min && index < max);
+          this.$nextTick(() => {
+            const selectedRows = this.pageSelection[this.currentPage] || [];
+            selectedRows.forEach((row) => {
+              this.$refs.multipleTable.toggleRowSelection(row);
+            });
+          });
         });
       },
       handleSelectionChange(val) {
-        this.$emit('change', val);
+        this.pageSelection[this.currentPage] = val;
+        let selectedGroups = [];
+        Object.keys(this.pageSelection).forEach((key) => {
+          selectedGroups = selectedGroups.concat(this.pageSelection[key]);
+        });
+        this.pageSelectionArray = selectedGroups;
+        this.$emit('change', selectedGroups);
       },
       handleSizeChange(val) {
         this.pageSize = val;
@@ -140,5 +156,14 @@
 </script>
 
 <style>
-
+  #chatRooms {
+    position: relative;
+  }
+  #chatRooms .tips {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 12px;
+    color: #67C23A;
+  }
 </style>
