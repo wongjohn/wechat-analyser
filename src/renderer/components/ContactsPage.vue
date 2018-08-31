@@ -184,8 +184,8 @@
             this.$message.error(error);
           });
       },
-      handleSelectionChange(val) {
-        console.log('selection', val); // eslint-disable-line
+      handleSelectionChange() {
+        // Do nothing
       },
       handleSizeChange(val) {
         this.pageSize = val;
