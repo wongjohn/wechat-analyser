@@ -26,6 +26,8 @@
                   <section>
                     <div class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
                       <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
                         :current-page.sync="currentPage"
                         :page-sizes="pageSizes"
                         :page-size.sync="pageSize"
@@ -147,16 +149,11 @@
             }
           }
         });
+        this.calculatePageContacts();
         return groupSession;
       },
       total() {
         return this.currentContacts.length;
-      },
-      pageContacts() {
-        const { pageSize = 10, currentPage = 1 } = this;
-        const min = (currentPage - 1) * pageSize;
-        const max = currentPage * pageSize;
-        return this.currentContacts.filter((contact, index) => index >= min && index <= max);
       },
     },
     data() {
@@ -165,9 +162,20 @@
         currentPage: 1,
         pageSizes: [10, 20, 30, 40, 50, 100, 200, 300, 400, 500],
         pageSize: 10,
+        pageContacts: [],
       };
     },
     methods: {
+      calculatePageContacts() {
+        this.pageContacts = [];
+        this.$nextTick(() => {
+          const { pageSize = 10, currentPage = 1 } = this;
+          const min = (currentPage - 1) * pageSize;
+          const max = currentPage * pageSize;
+          this.pageContacts = this.currentContacts.filter(
+            (contact, index) => index >= min && index < max);
+        });
+      },
       exportContacts() {
         WechatService.exportContacts(this.currentContacts)
           .then(() => {
@@ -178,6 +186,14 @@
       },
       handleSelectionChange(val) {
         console.log('selection', val); // eslint-disable-line
+      },
+      handleSizeChange(val) {
+        this.pageSize = val;
+        this.calculatePageContacts();
+      },
+      handleCurrentChange(val) {
+        this.currentPage = val;
+        this.calculatePageContacts();
       },
     },
     mounted() {

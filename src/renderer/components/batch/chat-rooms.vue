@@ -1,6 +1,8 @@
 <template>
   <div class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
     <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
       :current-page.sync="currentPage"
       :page-sizes="pageSizes"
       :page-size.sync="pageSize"
@@ -8,13 +10,9 @@
       :total="total"
     />
     <div class="ichat-messages-wrapper">
-      <el-button
-        v-if="loading"
-        type="primary"
-        v-loading.lock="loading">
-      </el-button>
+      <div v-if="loading" v-loading.lock="loading"></div>
       <div class="chat-sessions" v-if="pageContacts && pageContacts.length">
-        <el-table :data="currentContacts" border stripe
+        <el-table :data="pageContacts" border stripe
                   @selection-change="handleSelectionChange"
                   height="calc(100vh - 92px)" style="width: 100%;">
           <el-table-column type="selection" width="55"></el-table-column>
@@ -82,16 +80,11 @@
             }
           }
         });
+        this.calculatePageContacts();
         return groupSession;
       },
       total() {
         return this.currentContacts.length;
-      },
-      pageContacts() {
-        const { pageSize = 10, currentPage = 1 } = this;
-        const min = (currentPage - 1) * pageSize;
-        const max = currentPage * pageSize;
-        return this.currentContacts.filter((contact, index) => index >= min && index <= max);
       },
     },
     data() {
@@ -101,11 +94,30 @@
         currentPage: 1,
         pageSizes: [10, 20, 30, 40, 50, 100, 200, 300, 400, 500],
         pageSize: 10,
+        pageContacts: [],
       };
     },
     methods: {
+      calculatePageContacts() {
+        this.pageContacts = [];
+        this.$nextTick(() => {
+          const { pageSize = 10, currentPage = 1 } = this;
+          const min = (currentPage - 1) * pageSize;
+          const max = currentPage * pageSize;
+          this.pageContacts = this.currentContacts.filter(
+            (contact, index) => index >= min && index < max);
+        });
+      },
       handleSelectionChange(val) {
         this.$emit('change', val);
+      },
+      handleSizeChange(val) {
+        this.pageSize = val;
+        this.calculatePageContacts();
+      },
+      handleCurrentChange(val) {
+        this.currentPage = val;
+        this.calculatePageContacts();
       },
     },
     mounted() {
