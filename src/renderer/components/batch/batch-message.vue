@@ -110,7 +110,7 @@
   // 如果 file.size > splitSize
   // 必须分割 buf
   // 分片大小 512 * 1024 (512KB)
-  const splitSize = 524288;
+  // const splitSize = 524288;
 
   // const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -175,29 +175,29 @@
         const files = this.$refs.imgFiles.files;
 
         // check files
-        for (let i = 0, len = files.length; i < len; i++) { // eslint-disable-line
-          const file = files[i];
-
-          if (file.size > splitSize) { // 1048576 * 20) { // 限制 20MB
-            this.$notify.warning({
-              position: 'bottom-left',
-              title: '警告',
-              message: '限制图片不能大于 512KB',
-            });
-            return;
-          }
-
-          // image/jpeg image/png
-          const type = file.type;
-          if (type !== 'image/jpeg' && type !== 'image/png') {
-            this.$notify.warning({
-              position: 'bottom-left',
-              title: '警告',
-              message: '现在只写了发送 jpeg、png 图片的逻辑',
-            });
-            return;
-          }
-        }
+        // for (let i = 0, len = files.length; i < len; i++) { // eslint-disable-line
+        //   const file = files[i];
+        //
+        //   if (file.size > splitSize) { // 1048576 * 20) { // 限制 20MB
+        //     this.$notify.warning({
+        //       position: 'bottom-left',
+        //       title: '警告',
+        //       message: '限制图片不能大于 512KB',
+        //     });
+        //     return;
+        //   }
+        //
+        //   // image/jpeg image/png
+        //   const type = file.type;
+        //   if (type !== 'image/jpeg' && type !== 'image/png') {
+        //     this.$notify.warning({
+        //       position: 'bottom-left',
+        //       title: '警告',
+        //       message: '现在只写了发送 jpeg、png 图片的逻辑',
+        //     });
+        //     return;
+        //   }
+        // }
         const messages = [...this.messages];
         for (let i = 0, len = files.length; i < len; i++) { // eslint-disable-line
           // value: { mType, file, tos: { premd5: failCount } }
