@@ -87,7 +87,8 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer" style="width: 100px;margin: 0 auto;">
-        <el-button icon="el-icon-close" type="danger" @click="dialogVisible = false">取消</el-button>
+        <el-button v-if="userIndex === multipleSelection.length" icon="el-icon-check" type="primary" @click="dialogVisible = false">完成</el-button>
+        <el-button v-else icon="el-icon-close" type="danger" @click="dialogVisible = false">取消</el-button>
       </div>
     </el-dialog>
   </main>
@@ -203,7 +204,7 @@
               default:
               // Do nothing
             }
-            await sleep(200);
+            await sleep(1000);
           });
           this.userIndex += 1;
           if (this.userIndex < this.multipleSelection.length) {
