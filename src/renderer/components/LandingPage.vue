@@ -8,6 +8,7 @@
         <router-link to="/chats-history" exact class="main-menu-chat"><i></i></router-link>
         <router-link to="/chats-history/contacts" class="main-menu-customer"><i></i></router-link>
         <router-link to="/chats-history/bugs" class="main-menu-task"><i></i></router-link>
+        <router-link to="/dashboard" class="main-menu-nav"><i></i></router-link>
       </div>
     </main>
     <router-view></router-view>
@@ -121,6 +122,17 @@
     background-position: -185px -96px;
     background-size: 487px 462px;
   }
+  .main-menu-nav i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -102px -398px;
+    background-size: 487px 462px;
+  }
+  .main-menu-nav.router-link-active i, .main-menu-nav.active i, .main-menu-nav:hover i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -102px -398px;
+    background-size: 487px 462px;
+  }
+
   .main-c {
     width: 100%;
   }
