@@ -81,6 +81,7 @@
 
 <script>
   import bugService from '../service/bug-service';
+  import WechatService from '../service/wechat-service';
   export default {
     name: 'bugs-page',
     data() {
@@ -110,7 +111,11 @@
         this.$set(row, '$$editable', false);
       },
     },
-    mounted() {},
+    mounted() {
+      if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
+        this.$router.push('dashboard');
+      }
+    },
   };
 </script>
 

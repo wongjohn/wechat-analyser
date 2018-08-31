@@ -286,6 +286,7 @@
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
+        return;
       }
       if (this.allChatSessions.length) {
         this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次

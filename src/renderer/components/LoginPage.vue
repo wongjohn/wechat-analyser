@@ -10,8 +10,7 @@
                   <div class="ichat-header">
                     <div class="ichat-header-user">
                       <h2>
-                        微信群
-                        <span>({{currentContacts.length}})</span>
+                        微信群消息群发
                       </h2>
                       <div class="operations">
                         <el-button icon="el-icon-check" type="primary" @click="switchTo('login')">登录</el-button>
@@ -28,7 +27,7 @@
                 <div class="ichat-detail-c">
                   <section v-show="currentTab === 'login'">
                     <div>
-                      连接状态： {{this.connected ? '已连接' : '未连接'}}
+                      第三方微信iPad协议服务连接状态： {{this.connected ? '已连接' : '未连接'}}
                     </div>
                     <canvas id="loginCanvas" ref="loginCanvas"></canvas>
                   </section>
@@ -36,35 +35,7 @@
                     <batch-message v-model="messages"></batch-message>
                   </section>
                   <section v-show="currentTab === 'group'">
-                    <div class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
-                      <div class="ichat-messages-wrapper">
-                        <div class="chat-sessions" v-if="currentContacts.length">
-                          <el-table :data="currentContacts" border stripe
-                                    @selection-change="handleSelectionChange"
-                                    height="calc(100vh - 60px)" style="width: 100%;">
-                            <el-table-column type="selection" width="55"></el-table-column>
-                            <el-table-column prop="nickName" label="名称">
-                              <template slot-scope="scope">
-                                <span class="nickname">{{scope.row.nickName}}</span>
-                              </template>
-                            </el-table-column>
-                            <el-table-column prop="lastTime" label="最近聊天时间">
-                              <template slot-scope="scope">
-                                <span class="last-time">{{scope.row.lastTime}}</span>
-                              </template>
-                            </el-table-column>
-                            <el-table-column prop="joinTime" label="加入时间">
-                              <template slot-scope="scope">
-                                <span class="last-time">{{scope.row.joinTime}}</span>
-                              </template>
-                            </el-table-column>
-                          </el-table>
-                        </div>
-                        <div class="empty-message" v-else>
-                          没有联系人
-                        </div>
-                      </div>
-                    </div>
+                    <chat-rooms v-model="multipleSelection"></chat-rooms>
                   </section>
                 </div>
               </div>
@@ -95,51 +66,23 @@
 </template>
 
 <script>
-  import { Loading } from 'element-ui';
-  import { mapState } from 'vuex';
   import QRCode from 'qrcode';
   import WechatPadService from '../service/wechat-pad-service';
   import WechatService from '../service/wechat-service';
   import Message from './message';
   import BatchMessage from './batch/batch-message';
+  import ChatRooms from './batch/chat-rooms';
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   export default {
     name: 'login-page',
-    components: { Message, BatchMessage },
+    components: { Message, BatchMessage, ChatRooms },
     computed: {
-      ...mapState({
-        allContacts: state => state.Contacts.contacts,
-        contactsHashObject: state => state.Contacts.contactsHashObject,
-        contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
-      }),
-      currentContacts() {
-        const groupSession = [];
-        this.allChatSessions.forEach((chatSession) => {
-          let destination = chatSession.name.substring('Chat_'.length, chatSession.name.length);
-          if (this.contactsHashObject[destination]) {
-            destination = this.contactsHashObject[destination];
-            const { isShieldUser, isSpUser, isRoomContact } = WechatService;
-            const userName = destination.userName;
-            if (!isShieldUser(userName) && !isSpUser(userName) && isRoomContact(userName)) {
-              const chatSessionInfo = {
-                userName,
-                nickName: WechatService.parseName(destination.dbContactRemark),
-                lastTime: WechatService.formatTime(chatSession.CreateTime),
-                joinTime: WechatService.formatTime(chatSession.JoinTime),
-              };
-              groupSession.push(chatSessionInfo);
-            }
-          }
-        });
-        return groupSession;
-      },
       qrcodeUrl() {
         return this.loginInformation.qrcodeUrl;
       },
     },
     data() {
       return {
-        allChatSessions: [],
         loginInformation: WechatPadService.loginInformation,
         currentTab: 'login',
         multipleSelection: [],
@@ -212,27 +155,12 @@
           }
         }
       },
-      handleSelectionChange(val) {
-        this.multipleSelection = val;
-      },
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
         return;
       }
-      const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
-      WechatService.getMessageAndContactFileID()
-        .then(({ messageFileID }) => {
-          WechatService.getUserChatSessionContacts(messageFileID)
-            .then((chatSessions) => {
-              this.allChatSessions = chatSessions;
-              loadingInstance.close();
-            }, (error) => {
-              this.$message.error(error);
-              loadingInstance.close();
-            });
-        });
       WechatPadService.init();
       if (WechatPadService.getQrcodeUrl()) {
         this.$nextTick(() => {

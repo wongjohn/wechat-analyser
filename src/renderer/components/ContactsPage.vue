@@ -25,10 +25,18 @@
                 <div class="ichat-detail-c">
                   <section>
                     <div class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
+                      <el-pagination
+                        :current-page.sync="currentPage"
+                        :page-sizes="pageSizes"
+                        :page-size.sync="pageSize"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="total"
+                      />
                       <div class="ichat-messages-wrapper">
-                        <div class="chat-sessions" v-if="currentContacts.length">
-                          <el-table :data="currentContacts" border stripe
-                                    height="calc(100vh - 60px)" style="width: 100%;">
+                        <div class="chat-sessions" v-if="pageContacts.length">
+                          <el-table :data="pageContacts" border stripe
+                                    @selection-change="handleSelectionChange"
+                                    height="calc(100vh - 92px)" style="width: 100%;">
                             <el-table-column type="selection" width="55"></el-table-column>
                             <!--<el-table-column prop="image" label="头像">-->
                               <!--<template slot-scope="scope">-->
@@ -141,10 +149,22 @@
         });
         return groupSession;
       },
+      total() {
+        return this.currentContacts.length;
+      },
+      pageContacts() {
+        const { pageSize = 10, currentPage = 1 } = this;
+        const min = (currentPage - 1) * pageSize;
+        const max = currentPage * pageSize;
+        return this.currentContacts.filter((contact, index) => index >= min && index <= max);
+      },
     },
     data() {
       return {
         allChatSessions: [],
+        currentPage: 1,
+        pageSizes: [10, 20, 30, 40, 50, 100, 200, 300, 400, 500],
+        pageSize: 10,
       };
     },
     methods: {
@@ -156,23 +176,29 @@
             this.$message.error(error);
           });
       },
+      handleSelectionChange(val) {
+        console.log('selection', val); // eslint-disable-line
+      },
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
+        return;
       }
-      const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
-      WechatService.getMessageAndContactFileID()
-        .then(({ messageFileID }) => {
-          WechatService.getUserChatSessionContacts(messageFileID)
-            .then((chatSessions) => {
-              this.allChatSessions = chatSessions;
-              loadingInstance.close();
-            }, (error) => {
-              this.$message.error(error);
-              loadingInstance.close();
-            });
-        });
+      this.$nextTick(() => {
+        const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
+        WechatService.getMessageAndContactFileID()
+          .then(({ messageFileID }) => {
+            WechatService.getUserChatSessionContacts(messageFileID)
+              .then((chatSessions) => {
+                this.allChatSessions = chatSessions;
+                loadingInstance.close();
+              }, (error) => {
+                this.$message.error(error);
+                loadingInstance.close();
+              });
+          });
+      });
     },
   };
 </script>
