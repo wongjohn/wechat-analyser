@@ -289,8 +289,10 @@
         return;
       }
       if (this.allChatSessions.length) {
-        this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
-        this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
+        this.$nextTick(() => {
+          this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+          this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
+        });
       }
     },
     beforeDestroy() {
