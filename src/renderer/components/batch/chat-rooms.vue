@@ -2,7 +2,17 @@
   <div id="chatRooms" class="ichat-messages ichattypegroup" ref="ichatMessagesRef">
     <div class="tips">
       <el-input v-model="keyword" placeholder="筛选" @input="filterByGroupName"></el-input>
-      <div class="selected">已选 {{pageSelectionArray.length}} 个</div>
+      <div class="selected">
+        <el-button :class="{'selected-button': toggleSelected}" size="mini" round @click="toggleSelected = !toggleSelected">已选 {{selectedGroups.length}} 个</el-button>
+        <el-dropdown split-button type="primary" size="mini" @click="dialogVisible = true" @command="handleGroupCommand">
+          存为分组
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item :command="{groupName: '管理分组'}">管理分组</el-dropdown-item>
+            <el-dropdown-item :command="{groupName: '全部微信群', list: allGroupContacts}">全部微信群</el-dropdown-item>
+            <el-dropdown-item v-for="group in storeGroups" :key="group.groupName" :command="group">{{group.groupName}}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
     </div>
     <el-pagination
       @size-change="handleSizeChange"
@@ -42,12 +52,46 @@
         没有联系人
       </div>
     </div>
+    <el-dialog title="存为分组" :visible.sync="dialogVisible" width="500px" >
+      <p class="group-tips">将已经选择的<span>{{selectedGroups.length}}</span>个群存为分组</p>
+      <el-input placeholder="输入分组名称" v-model="groupName" />
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog">取 消</el-button>
+        <el-button type="primary" @click="handleCreateGroup">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="分组管理" :visible.sync="groupManageDialogVisible" width="500px" >
+      <el-table :data="storeGroups" border stripe style="width: 100%;">
+        <el-table-column prop="groupName" label="分组名称">
+          <template slot-scope="scope">
+            <el-input v-if="scope.row.$$editable" v-model="scope.row.groupName"></el-input>
+            <span v-else>{{ scope.row.groupName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="list" label="分组群数量">
+          <template slot-scope="scope">
+            <span class="last-time">{{scope.row.list.length}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button v-if="!scope.row.$$editable" icon="el-icon-edit" circle @click="handleEdit(scope.row)"></el-button>
+            <el-button v-else type="success" icon="el-icon-check" circle @click="handleClose(scope.row)"></el-button>
+            <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer" style="text-align: center;">
+        <el-button @click="groupManageDialogVisible = false">关闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import { mapState } from 'vuex';
   import WechatService from '../../service/wechat-service';
+  const STORE_KEY = 'storeGroups';
   export default {
     name: 'chat-rooms',
     model: {
@@ -66,7 +110,7 @@
         contactsHashObject: state => state.Contacts.contactsHashObject,
         contactsUserNameMapObject: state => state.Contacts.contactsUserNameMapObject,
       }),
-      currentContacts() {
+      allGroupContacts() {
         const groupSession = [];
         this.allChatSessions.forEach((chatSession) => {
           let destination = chatSession.name.substring('Chat_'.length, chatSession.name.length);
@@ -93,6 +137,24 @@
         return (this.filteredGroups && this.filteredGroups.length) || this.currentContacts.length;
       },
     },
+    watch: {
+      allGroupContacts() {
+        this.currentContacts = this.allGroupContacts;
+      },
+      toggleSelected(value) {
+        this.$nextTick(() => {
+          this.currentPage = 1;
+          this.calculatePageContacts();
+        });
+        if (value) {
+          this.currentContacts = [...this.selectedGroups];
+        } else if (this.currentSelectedGroup) {
+          this.currentContacts = this.currentSelectedGroup.list;
+        } else {
+          this.currentContacts = this.allGroupContacts;
+        }
+      },
+    },
     data() {
       return {
         loading: false,
@@ -101,11 +163,18 @@
         pageSizes: [10, 20, 30, 40, 50, 100, 200, 300, 400, 500],
         pageSize: 100,
         pageContacts: [],
-        pageSelectionArray: [],
+        selectedGroups: [],
         keyword: '',
         filteredGroups: null,
         debounceId: null,
         selectionDebounceId: null,
+        toggleSelected: false,
+        currentContacts: [],
+        storeGroups: JSON.parse(localStorage.getItem(STORE_KEY) || '[]'),
+        dialogVisible: false,
+        groupName: '',
+        groupManageDialogVisible: false,
+        currentSelectedGroup: null,
       };
     },
     methods: {
@@ -123,7 +192,7 @@
             (contact, index) => index >= min && index < max);
           this.$nextTick(() => {
             const selectedRows = this.pageContacts.filter(
-              contact => this.pageSelectionArray.indexOf(contact) !== -1);
+              contact => this.selectedGroups.indexOf(contact) !== -1);
             selectedRows.forEach((row) => {
               this.$refs.multipleTable.toggleRowSelection(row);
             });
@@ -135,19 +204,19 @@
           clearTimeout(this.selectionDebounceId);
         }
         this.selectionDebounceId = setTimeout(() => {
-          const selectedGroups = [...this.pageSelectionArray];
+          const selectedGroups = [...this.selectedGroups];
           val.forEach((contact) => { // 添加已经选中的
-            if (this.pageSelectionArray.indexOf(contact) === -1) {
+            if (this.selectedGroups.indexOf(contact) === -1) {
               selectedGroups.push(contact);
             }
           });
           this.pageContacts.forEach((contact) => { // 排除未选中的
-            const index = this.pageSelectionArray.indexOf(contact);
+            const index = this.selectedGroups.indexOf(contact);
             if (val.indexOf(contact) === -1 && index !== -1) {
               selectedGroups.splice(index, 1);
             }
           });
-          this.pageSelectionArray = selectedGroups;
+          this.selectedGroups = selectedGroups;
           this.$emit('change', selectedGroups);
           this.selectionDebounceId = null;
         }, 200);
@@ -183,6 +252,50 @@
           this.calculatePageContacts();
         }, 300);
       },
+      handleCreateGroup() {
+        this.storeGroups.push({
+          groupName: this.groupName,
+          list: [...this.selectedGroups],
+        });
+        localStorage.setItem(STORE_KEY, JSON.stringify(this.storeGroups));
+        this.closeDialog();
+      },
+      closeDialog() {
+        this.dialogVisible = false;
+        this.groupName = '';
+      },
+      handleGroupCommand(group) {
+        if (group.groupName === '管理分组') {
+          this.groupManageDialogVisible = true;
+          return;
+        }
+        this.toggleSelected = false;
+        this.currentPage = 1;
+        this.keyword = '';
+        this.filteredGroups = null;
+        this.$nextTick(() => {
+          this.calculatePageContacts();
+        });
+        if (group.groupName === '全部微信群') {
+          this.currentSelectedGroup = null;
+          this.selectedGroups = [];
+          this.currentContacts = group.list;
+        } else {
+          this.currentSelectedGroup = group;
+          this.selectedGroups = group.list;
+          this.currentContacts = group.list;
+        }
+      },
+      handleDelete(index) {
+        this.storeGroups.splice(index, 1);
+        localStorage.setItem(STORE_KEY, JSON.stringify(this.storeGroups));
+      },
+      handleEdit(row) {
+        this.$set(row, '$$editable', true);
+      },
+      handleClose(row) {
+        this.$set(row, '$$editable', false);
+      },
     },
     mounted() {
       this.$nextTick(() => {
@@ -209,14 +322,27 @@
   }
   #chatRooms .tips {
     position: absolute;
-    top: 8px;
-    right: 12px;
+    top: 0;
+    right: 0;
     font-size: 12px;
-    color: #67C23A;
     z-index: 9;
     background-color: #fff;
+    padding: 8px;
+    border: solid 1px #eee;
   }
   .tips .selected {
-    text-align: center;
+    margin-top: 8px;
+  }
+  .selected-button.el-button {
+    color: #fff;
+    background-color: #67c23a;
+    border-color: #67c23a;
+  }
+  .group-tips {
+    margin-bottom: 8px;
+  }
+  .group-tips span {
+    color: #67c23a;
+    margin: 0 8px;
   }
 </style>
