@@ -21,6 +21,10 @@
   export default {
     name: 'landing-page',
     mounted() {
+      if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
+        this.$router.push('dashboard');
+        return;
+      }
       this.$nextTick(() => {
         const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
         WechatService.getMessageAndContactFileID()
