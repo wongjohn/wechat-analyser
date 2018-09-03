@@ -148,8 +148,6 @@
         });
         if (value) {
           this.currentContacts = [...this.selectedGroups];
-        } else if (this.currentSelectedGroup) {
-          this.currentContacts = this.currentSelectedGroup.list;
         } else {
           this.currentContacts = this.allGroupContacts;
         }
@@ -174,7 +172,6 @@
         dialogVisible: false,
         groupName: '',
         groupManageDialogVisible: false,
-        currentSelectedGroup: null,
       };
     },
     methods: {
@@ -277,13 +274,25 @@
           this.calculatePageContacts();
         });
         if (group.groupName === '全部微信群') {
-          this.currentSelectedGroup = null;
           this.selectedGroups = [];
-          this.currentContacts = group.list;
+          this.currentContacts = this.allGroupContacts;
         } else {
-          this.currentSelectedGroup = group;
-          this.selectedGroups = group.list;
-          this.currentContacts = group.list;
+          this.selectedGroups = this.allGroupContacts.filter(
+            chatGroup => !!group.list.find(
+              storeGroup => storeGroup.userName === chatGroup.userName),
+          );
+          if (this.selectedGroups.length !== group.list.length) {
+            group.list.forEach((storeGroup) => { // 列表里面没有的，填充进去
+              if (!this.selectedGroups.find(
+                selectedGroup => selectedGroup.userName === storeGroup.userName)) {
+                this.selectedGroups.push(storeGroup);
+              }
+            });
+          }
+          this.currentContacts = this.allGroupContacts;
+          this.$nextTick(() => {
+            this.toggleSelected = true;
+          });
         }
       },
       handleDelete(index) {
