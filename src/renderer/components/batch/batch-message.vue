@@ -46,7 +46,7 @@
             <h4>小橙子</h4>
             <div class="ichat-message-ope multi-selection-mode"><!---->
               <a class="iui-tooltip" v-if="message.mType !== 3">
-                <div class="iui-tooltip-c" style="margin-left: 0px;" @click="editMessage(message)">
+                <div class="iui-tooltip-c" style="margin-left: 0px;" @click="editMessage(message, index)">
                   <i class="el-icon-edit"></i> 编辑</div>
               </a>
               <a class="iui-tooltip">
@@ -138,6 +138,7 @@
         des: '',
         url: '',
         thumburl: '',
+        editIndex: -1,
       };
     },
     methods: {
@@ -153,7 +154,14 @@
         }
 
         // value: { mType, content }
-        this.$emit('change', [...this.messages, { mType: 1, content }]);
+        const messages = [...this.messages];
+        if (this.editIndex === -1) {
+          messages.push({ mType: 1, content });
+        } else {
+          messages.splice(this.editIndex, 1, { mType: 1, content });
+          this.editIndex = -1;
+        }
+        this.$emit('change', messages);
         this.closeTextDialog();
       },
       closeTextDialog() {
@@ -168,7 +176,14 @@
       addAppMsg() {
         const { title, des, url, thumburl } = this;
         // value: { mType, content }
-        this.$emit('change', [...this.messages, { mType: 49, content: { title, des, url, thumburl } }]);
+        const messages = [...this.messages];
+        if (this.editIndex === -1) {
+          messages.push({ mType: 49, content: { title, des, url, thumburl } });
+        } else {
+          messages.splice(this.editIndex, 1, { mType: 49, content: { title, des, url, thumburl } });
+          this.editIndex = -1;
+        }
+        this.$emit('change', messages);
         this.closeAppDialog();
       },
       closeAppDialog() {
@@ -182,30 +197,6 @@
       previewFiles() {
         const files = this.$refs.imgFiles.files;
 
-        // check files
-        // for (let i = 0, len = files.length; i < len; i++) { // eslint-disable-line
-        //   const file = files[i];
-        //
-        //   if (file.size > splitSize) { // 1048576 * 20) { // 限制 20MB
-        //     this.$notify.warning({
-        //       position: 'bottom-left',
-        //       title: '警告',
-        //       message: '限制图片不能大于 512KB',
-        //     });
-        //     return;
-        //   }
-        //
-        //   // image/jpeg image/png
-        //   const type = file.type;
-        //   if (type !== 'image/jpeg' && type !== 'image/png') {
-        //     this.$notify.warning({
-        //       position: 'bottom-left',
-        //       title: '警告',
-        //       message: '现在只写了发送 jpeg、png 图片的逻辑',
-        //     });
-        //     return;
-        //   }
-        // }
         const messages = [...this.messages];
         for (let i = 0, len = files.length; i < len; i++) { // eslint-disable-line
           // value: { mType, file, tos: { premd5: failCount } }
@@ -231,7 +222,8 @@
         messages.splice(index, 1);
         this.$emit('change', messages);
       },
-      editMessage(message) {
+      editMessage(message, index) {
+        this.editIndex = index;
         if (message.mType === 1) {
           this.textMessage = message.content;
           this.dialogVisible = true;
