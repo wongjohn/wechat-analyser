@@ -51,7 +51,10 @@
       },
     },
     created() {
-      this.foldersInfo = WechatService.findMobileBackupFolders();
+      // this.foldersInfo = WechatService.findMobileBackupFolders();
+      this.$nextTick(() => {
+        this.foldersInfo = WechatService.findMobileBackupFolders();
+      });
     },
   };
 </script>
