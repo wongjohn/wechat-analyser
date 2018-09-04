@@ -25,6 +25,14 @@
         icon="el-icon-delete"
         :disabled="!messages.length"
         @click="clearAllMessages">清空</el-button>
+
+      <el-dropdown split-button type="primary" @click="messageDialogVisible = true" @command="handleMessageCommand">
+        存为草稿
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="{messageName: '管理草稿'}">管理草稿</el-dropdown-item>
+          <el-dropdown-item v-for="message in storeMessages" :key="message.messageName" :command="message">{{message.messageName}}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
 
     <input
@@ -105,12 +113,44 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="存为草稿" :visible.sync="messageDialogVisible" width="500px" >
+      <el-input placeholder="输入草稿名称" v-model="messageName" />
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeMessageDialog">取 消</el-button>
+        <el-button type="primary" @click="handleStoreMessage">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="草稿管理" :visible.sync="messageManageDialogVisible" width="500px" >
+      <el-table :data="storeMessages" border stripe style="width: 100%;">
+        <el-table-column prop="messageName" label="草稿名称">
+          <template slot-scope="scope">
+            <el-input v-if="scope.row.$$editable" v-model="scope.row.messageName"></el-input>
+            <span v-else>{{ scope.row.messageName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="list" label="草稿消息数量">
+          <template slot-scope="scope">
+            <span class="last-time">{{scope.row.list.length}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button v-if="!scope.row.$$editable" icon="el-icon-edit" circle @click="handleEdit(scope.row)"></el-button>
+            <el-button v-else type="success" icon="el-icon-check" circle @click="handleClose(scope.row)"></el-button>
+            <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer" style="text-align: center;">
+        <el-button @click="messageManageDialogVisible = false">关闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   const DEFAULT_HEAD_IMAGE = 'http://wx.qlogo.cn/mmhead/ver_1/ozntzvibcWdPugmdr7ngLwLkuUt2L6sel2nLbH4pXu4opERGCicDHsvgR7kzWBMY8EibggYnqg9of4wVLIQNZywHdmlPV8tMwK3lvQb2UbN7GQ/132';
-
+  const STORE_KEY = 'storeMessages';
   // 如果 file.size > splitSize
   // 必须分割 buf
   // 分片大小 512 * 1024 (512KB)
@@ -139,6 +179,10 @@
         url: '',
         thumburl: '',
         editIndex: -1,
+        storeMessages: JSON.parse(localStorage.getItem(STORE_KEY) || '[]'),
+        messageDialogVisible: false,
+        messageName: '',
+        messageManageDialogVisible: false,
       };
     },
     methods: {
@@ -237,6 +281,35 @@
       },
       clearAllMessages() {
         this.messages = [];
+      },
+      handleStoreMessage() {
+        this.storeMessages.push({
+          messageName: this.messageName,
+          list: [...this.messages],
+        });
+        localStorage.setItem(STORE_KEY, JSON.stringify(this.storeMessages));
+        this.closeMessageDialog();
+      },
+      closeMessageDialog() {
+        this.messageDialogVisible = false;
+        this.messageName = '';
+      },
+      handleMessageCommand(message) {
+        if (message.messageName === '管理草稿') {
+          this.messageManageDialogVisible = true;
+          return;
+        }
+        this.$emit('change', message.list);
+      },
+      handleDelete(index) {
+        this.storeMessages.splice(index, 1);
+        localStorage.setItem(STORE_KEY, JSON.stringify(this.storeMessages));
+      },
+      handleEdit(row) {
+        this.$set(row, '$$editable', true);
+      },
+      handleClose(row) {
+        this.$set(row, '$$editable', false);
       },
     },
   };
