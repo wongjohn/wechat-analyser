@@ -1,5 +1,5 @@
 <template>
-  <main class="main-c contacts-page-main">
+  <main class="main-c contacts-page-main" id="contactsPage">
     <section>
       <div class="ichat">
         <div class="ichat-content">
@@ -202,7 +202,7 @@
         return;
       }
       this.$nextTick(() => {
-        const loadingInstance = Loading.service({ fullscreen: true, target: '#wrapper' });
+        const loadingInstance = Loading.service({ fullscreen: true, target: '#contactsPage' });
         WechatService.getMessageAndContactFileID()
           .then(({ messageFileID }) => {
             WechatService.getUserChatSessionContacts(messageFileID)
