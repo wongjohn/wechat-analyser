@@ -26,6 +26,10 @@ export default new Router({
           path: 'login',
           component: require('@/components/LoginPage').default,
         },
+        {
+          path: 'search',
+          component: require('@/components/SearchPage').default,
+        },
       ],
     },
     {

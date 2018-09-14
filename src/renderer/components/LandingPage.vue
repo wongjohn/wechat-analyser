@@ -8,6 +8,7 @@
         <router-link to="/chats-history" exact class="main-menu-chat"><i></i></router-link>
         <router-link to="/chats-history/contacts" class="main-menu-customer"><i></i></router-link>
         <router-link to="/chats-history/bugs" class="main-menu-task"><i></i></router-link>
+        <router-link to="/chats-history/search" class="main-menu-search"><i></i></router-link>
         <router-link to="/dashboard" class="main-menu-nav"><i></i></router-link>
       </div>
     </main>
@@ -138,7 +139,46 @@
     background-position: -102px -398px;
     background-size: 487px 462px;
   }
-
+  .main-menu-search i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -89px -432px;
+    background-size: 487px 462px;
+  }
+  .main-menu-search.router-link-active i, .main-menu-search.active i, .main-menu-search:hover i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -59px -432px;
+    background-size: 487px 462px;
+  }
+  .main-menu-alert i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -68px -398px;
+    background-size: 487px 462px;
+  }
+  .main-menu-alert.router-link-active i, .main-menu-alert.active i, .main-menu-alert:hover i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -68px -398px;
+    background-size: 487px 462px;
+  }
+  .main-menu-volume i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -170px -398px;
+    background-size: 487px 462px;
+  }
+  .main-menu-volume.router-link-active i, .main-menu-volume.active i, .main-menu-volume:hover i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -170px -398px;
+    background-size: 487px 462px;
+  }
+  .main-menu-feedback i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -306px -398px;
+    background-size: 487px 462px;
+  }
+  .main-menu-feedback.router-link-active i, .main-menu-feedback.active i, .main-menu-feedback:hover i {
+    background: url(../assets/wechat@2x.png) no-repeat;
+    background-position: -306px -398px;
+    background-size: 487px 462px;
+  }
   .main-c {
     width: 100%;
   }

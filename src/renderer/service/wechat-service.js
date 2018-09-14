@@ -274,6 +274,53 @@ function getUserChatSessionContacts(messageFileID) {
     db.close();
   });
 }
+/**
+ * 根据messageFileID、获取不活跃联系人
+ * @param messageFileID
+ */
+function getUserChatSessionInActiveContacts(messageFileID) {
+  return new Promise((resolve, reject) => {
+    const messageFolderName = messageFileID.substr(0, 2);
+    const db = new sqlite3.Database(
+      path.resolve(SELECTED_BACKUP_FOLDER_PATH, messageFolderName, messageFileID),
+      sqlite3.OPEN_READONLY);
+
+    db.all(`
+    SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Chat_%'
+    AND name NOT LIKE 'ChatExt%' order by rootpage desc`, (error, rows) => {
+      if (!error) {
+        chats = rows;
+        const promises = [];
+        rows.forEach((row) => {
+          let res;
+          let rej;
+          promises.push(new Promise((_resolve, _reject) => {
+            res = _resolve;
+            rej = _reject;
+          }));
+          db.get(`select max(CreateTime) as CreateTime, Message, Des from ${row.name}`, (err, record) => {
+            if (!err) {
+              row.CreateTime = record.CreateTime;
+              row.Message = record.Message;
+              row.Des = record.Des;
+              res(row);
+            } else {
+              rej(err);
+            }
+          });
+        });
+        Promise.all(promises)
+          .then(() => {
+            resolve(rows.sort((a, b) => a.CreateTime - b.CreateTime));
+          });
+      } else {
+        reject(error);
+      }
+    });
+
+    db.close();
+  });
+}
 
 function queryContacts(keyword) {
   return new Promise((resolve, reject) => {
@@ -302,10 +349,13 @@ function queryContacts(keyword) {
   });
 }
 
-function formatTime(CreateTime) {
-  return moment(new Date(CreateTime * 1000)).format('YYYY-MM-DD HH:mm:ss');
+function formatTimeWithPattern(CreateTime, Patten = 'YYYY-MM-DD') {
+  return moment(new Date(CreateTime * 1000)).format(Patten);
 }
 
+function formatTime(CreateTime) {
+  return formatTimeWithPattern(CreateTime, 'YYYY-MM-DD HH:mm:ss');
+}
 
 function sevenDaysAgo() {
   const sevenDaysAgo = moment().subtract(7, 'days');
@@ -416,10 +466,12 @@ export default {
   queryContacts,
   md5,
   formatTime,
+  formatTimeWithPattern,
   sevenDaysAgo,
   exportContacts,
   isRoomContact,
   isSpUser,
   isShieldUser,
   getUserChatSessionContacts,
+  getUserChatSessionInActiveContacts,
 };

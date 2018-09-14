@@ -5,6 +5,7 @@ const os = require('os');
 const exec = require('child_process').exec;
 const readFilePath = path.resolve(__dirname, 'alpha__bug_template.xlsx');
 
+const BUGS_STORE_KEY = 'BUGS';
 let bugs = [];
 
 const MODULES = (['wordalpha', 'note', '安装指引', '登录', '账号', 'Chrome浏览器', '大数据',
@@ -35,6 +36,7 @@ function exportBugs() {
         const genDir = path.resolve(os.homedir(), `Downloads/Alpha-Bugs-${(new Date()).getTime()}.xlsx`);
         workbook.xlsx.writeFile(genDir);
         bugs = [];
+        localStorage.setItem(BUGS_STORE_KEY, JSON.stringify(bugs));
         Message.success('Bug文档生成完毕');
         resolve(bugs);
         exec('open .', { cwd: path.dirname(genDir) });
@@ -48,6 +50,7 @@ export default {
   exportBugs,
   addBug(bug) {
     bugs.push(bug);
+    localStorage.setItem(BUGS_STORE_KEY, JSON.stringify(bugs));
   },
   getBugs() {
     return bugs;
