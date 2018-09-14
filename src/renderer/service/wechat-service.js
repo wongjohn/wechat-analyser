@@ -278,7 +278,7 @@ function getUserChatSessionContacts(messageFileID) {
  * 根据messageFileID、获取不活跃联系人
  * @param messageFileID
  */
-function getUserChatSessionInActiveContacts(messageFileID) {
+function getUserChatSessionInActiveContacts(messageFileID, ignoreOranges = []) {
   return new Promise((resolve, reject) => {
     const messageFolderName = messageFileID.substr(0, 2);
     const db = new sqlite3.Database(
@@ -298,7 +298,13 @@ function getUserChatSessionInActiveContacts(messageFileID) {
             res = _resolve;
             rej = _reject;
           }));
-          db.get(`select max(CreateTime) as CreateTime, Message, Des from ${row.name}`, (err, record) => {
+          let where = ' where Des = 1 ';
+          if (ignoreOranges.length) {
+            ignoreOranges.forEach((orangeContact) => {
+              where += ` and Message not like "%${orangeContact.userName}%" `;
+            });
+          }
+          db.get(`select max(CreateTime) as CreateTime, Message, Des from ${row.name} ${where}`, (err, record) => {
             if (!err) {
               row.CreateTime = record.CreateTime;
               row.Message = record.Message;

@@ -14,6 +14,33 @@
                         <span>({{currentContacts.length}})</span>
                       </h2>
                       <div class="operations">
+                        <el-popover
+                          placement="top-start"
+                          width="400"
+                          trigger="hover"
+                          >
+                          <div style="max-height: 600px; overflow-y: auto;">
+                            <el-table :data="orangeContacts">
+                              <el-table-column
+                                prop="nickName"
+                                label="名称"
+                                width="180">
+                              </el-table-column>
+                              <el-table-column
+                                prop="userName"
+                                label="用户ID"
+                                width="180">
+                              </el-table-column>
+                            </el-table>
+                          </div>
+                          <el-button size="small" slot="reference">小橙子账号</el-button>
+                        </el-popover>
+                        <el-switch
+                          @change="getUserChatSessionInActiveContacts"
+                          v-model="hasOrange"
+                          active-text="包含小橙子账号"
+                          inactive-text="不包含小橙子账号">
+                        </el-switch>
                         <el-date-picker
                           v-model="selectedDate"
                           align="right"
@@ -47,13 +74,6 @@
                                     @selection-change="handleSelectionChange"
                                     height="calc(100vh - 92px)" style="width: 100%;">
                             <el-table-column type="selection" width="55"></el-table-column>
-                            <!--<el-table-column prop="image" label="头像">-->
-                            <!--<template slot-scope="scope">-->
-                            <!--<div class="img group">-->
-                            <!--<img :src="scope.row.image">-->
-                            <!--</div>-->
-                            <!--</template>-->
-                            <!--</el-table-column>-->
                             <el-table-column prop="nickName" label="名称">
                               <template slot-scope="scope">
                                 <span class="nickname">{{scope.row.nickName}}</span>
@@ -136,7 +156,7 @@
                 }
               } else {
                 message = chatSession.Message;
-                messager = '我';
+                messager = '系统消息';
               }
               chatSessionInfo.messager = messager;
               chatSessionInfo.messageTime = chatSession.MessageTime &&
@@ -160,6 +180,14 @@
       },
       total() {
         return this.currentContacts.length;
+      },
+      orangeContacts() {
+        const REG = /小橙子/;
+        const orangeContacts = this.allContacts.filter(contact => REG.test(contact.dbContactRemark));
+        return orangeContacts.map(contact => ({
+          userName: contact.userName,
+          nickName: WechatService.parseName(contact.dbContactRemark),
+        }));
       },
     },
     data() {
@@ -195,6 +223,7 @@
           }],
         },
         selectedDate: null,
+        hasOrange: false,
       };
     },
     methods: {
@@ -227,26 +256,26 @@
         this.currentPage = val;
         this.calculatePageContacts();
       },
+      getUserChatSessionInActiveContacts() {
+        const loadingInstance = Loading.service({ fullscreen: true, target: '#searchPage' });
+        WechatService.getUserChatSessionInActiveContacts(
+          WechatService.getMessageFileID(), this.hasOrange ? [] : this.orangeContacts,
+        )
+          .then((chatSessions) => {
+            this.allChatSessions = chatSessions;
+            loadingInstance.close();
+          }, (error) => {
+            this.$message.error(error);
+            loadingInstance.close();
+          });
+      },
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
         return;
       }
-      this.$nextTick(() => {
-        const loadingInstance = Loading.service({ fullscreen: true, target: '#searchPage' });
-        WechatService.getMessageAndContactFileID()
-          .then(({ messageFileID }) => {
-            WechatService.getUserChatSessionInActiveContacts(messageFileID)
-              .then((chatSessions) => {
-                this.allChatSessions = chatSessions;
-                loadingInstance.close();
-              }, (error) => {
-                this.$message.error(error);
-                loadingInstance.close();
-              });
-          });
-      });
+      this.$nextTick(this.getUserChatSessionInActiveContacts);
     },
   };
 </script>
