@@ -73,7 +73,7 @@
                           width="400"
                           trigger="hover"
                         >
-                          <div style="max-height: 600px; overflow-y: auto;">
+                          <div style="max-height: 400px; overflow-y: auto;">
                             <el-table :data="orangeContacts">
                               <el-table-column
                                 prop="nickName"
