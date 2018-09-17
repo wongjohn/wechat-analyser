@@ -20,26 +20,54 @@
                           trigger="hover"
                           >
                           <div style="max-height: 400px; overflow-y: auto;">
-                            <el-table :data="orangeContacts">
+                            <el-dropdown
+                              class="suggestion-input"
+                              trigger="click"
+                              @command="handleCommand"
+                              ref="dropDownMenu"
+                              placement="bottom-start"
+                            >
+                              <el-input placeholder="讨论组、联系人" v-model="keyword" @input="queryContacts"/>
+                              <el-dropdown-menu
+                                class="suggestion-menus"
+                                :class="{'no-suggestion': !contacts.length}"
+                                slot="dropdown">
+                                <el-dropdown-item disabled>联系人</el-dropdown-item>
+                                <el-dropdown-item
+                                  v-for="item in contacts"
+                                  :key="item.name"
+                                  v-if="contacts.length"
+                                  :command="item">
+                                  {{ getDisplayName(item) }}
+                                </el-dropdown-item>
+                              </el-dropdown-menu>
+                            </el-dropdown>
+                            <el-button type="primary" @click="getUserChatSessionInActiveContacts">重新查询</el-button>
+                            <el-table :data="ignoreContacts">
                               <el-table-column
                                 prop="nickName"
                                 label="名称"
-                                width="180">
+                                width="120">
                               </el-table-column>
                               <el-table-column
                                 prop="userName"
                                 label="用户ID"
                                 width="180">
                               </el-table-column>
+                              <el-table-column label="操作">
+                                <template slot-scope="scope">
+                                  <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.$index, scope.row)"></el-button>
+                                </template>
+                              </el-table-column>
                             </el-table>
                           </div>
-                          <el-button size="small" slot="reference">小橙子账号</el-button>
+                          <el-button size="small" slot="reference">忽略账号</el-button>
                         </el-popover>
                         <el-switch
                           @change="getUserChatSessionInActiveContacts"
                           v-model="hasOrange"
-                          active-text="包含小橙子账号"
-                          inactive-text="不包含小橙子账号">
+                          active-text="包含忽略账号"
+                          inactive-text="不包含忽略账号">
                         </el-switch>
                         <el-date-picker
                           v-model="selectedDate"
@@ -70,6 +98,7 @@
                       />
                       <div class="ichat-messages-wrapper">
                         <div class="chat-sessions" v-if="pageContacts.length">
+
                           <el-table :data="pageContacts" border stripe
                                     @selection-change="handleSelectionChange"
                                     height="calc(100vh - 92px)" style="width: 100%;">
@@ -183,8 +212,8 @@
       },
       orangeContacts() {
         const REG = /小橙子/;
-        const orangeContacts = this.allContacts.filter(contact => REG.test(contact.dbContactRemark));
-        return orangeContacts.map(contact => ({
+        const ignoreContacts = this.allContacts.filter(contact => REG.test(contact.dbContactRemark));
+        return ignoreContacts.map(contact => ({
           userName: contact.userName,
           nickName: WechatService.parseName(contact.dbContactRemark),
         }));
@@ -224,6 +253,10 @@
         },
         selectedDate: null,
         hasOrange: false,
+        ignoreContacts: [],
+        keyword: null,
+        debounceId: null,
+        contacts: [],
       };
     },
     methods: {
@@ -259,7 +292,7 @@
       getUserChatSessionInActiveContacts() {
         const loadingInstance = Loading.service({ fullscreen: true, target: '#searchPage' });
         WechatService.getUserChatSessionInActiveContacts(
-          WechatService.getMessageFileID(), this.hasOrange ? [] : this.orangeContacts,
+          WechatService.getMessageFileID(), this.hasOrange ? [] : this.ignoreContacts,
         )
           .then((chatSessions) => {
             this.allChatSessions = chatSessions;
@@ -269,13 +302,48 @@
             loadingInstance.close();
           });
       },
+      handleDelete(index) {
+        this.ignoreContacts.splice(index, 1);
+      },
+      handleCommand(contact) {
+        this.ignoreContacts.splice(0, 0, {
+          userName: contact.userName,
+          nickName: WechatService.parseName(contact.dbContactRemark),
+        });
+      },
+      queryContacts() {
+        if (this.debounceId) {
+          clearTimeout(this.debounceId);
+        }
+        if (!this.keyword) {
+          this.contacts = [];
+          return; // Do nothing
+        }
+        this.debounceId = setTimeout(() => {
+          const loadingInstance = Loading.service({ fullscreen: true, target: '.suggestion-input' });
+          WechatService.queryContacts(this.keyword)
+            .then((contacts) => {
+              this.contacts = contacts;
+              loadingInstance.close();
+            }, (error) => {
+              this.$message.error(error);
+              loadingInstance.close();
+            });
+        }, 500);
+      },
+      getDisplayName(contact) {
+        return WechatService.parseName(contact.dbContactRemark);
+      },
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
         this.$router.push('dashboard');
         return;
       }
-      this.$nextTick(this.getUserChatSessionInActiveContacts);
+      this.$nextTick(() => {
+        this.ignoreContacts = [...this.orangeContacts];
+        this.getUserChatSessionInActiveContacts();
+      });
     },
   };
 </script>

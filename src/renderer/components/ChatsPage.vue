@@ -245,12 +245,12 @@
         return destination;
       },
       queryContacts() {
+        if (this.debounceId) {
+          clearTimeout(this.debounceId);
+        }
         if (!this.keyword) {
           this.contacts = [];
           return; // Do nothing
-        }
-        if (this.debounceId) {
-          clearTimeout(this.debounceId);
         }
         this.debounceId = setTimeout(() => {
           const loadingInstance = Loading.service({ fullscreen: true, target: '.suggestion-input' });
