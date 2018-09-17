@@ -45,7 +45,7 @@
                           v-model="selectedDate"
                           align="right"
                           type="date"
-                          placeholder="选择日期"
+                          placeholder="选择不活跃截止日期"
                           :picker-options="pickerOptions">
                         </el-date-picker>
                         <el-button icon="el-icon-download" type="primary" @click="exportContacts" :disabled="!currentContacts.length">导出当前列表</el-button>
