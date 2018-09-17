@@ -68,6 +68,31 @@
                         <span>({{selectedChatSessionInfo.length}})</span>
                       </h2>
                       <div class="operations">
+                        <el-popover
+                          placement="top-start"
+                          width="400"
+                          trigger="hover"
+                        >
+                          <div style="max-height: 600px; overflow-y: auto;">
+                            <el-table :data="orangeContacts">
+                              <el-table-column
+                                prop="nickName"
+                                label="名称"
+                                width="180">
+                              </el-table-column>
+                              <el-table-column
+                                prop="userName"
+                                label="用户ID"
+                                width="180">
+                              </el-table-column>
+                            </el-table>
+                          </div>
+                          <el-button size="small" slot="reference">排序 {{hasOrange ? '包含' : '不包含' }} 小橙子消息</el-button>
+                        </el-popover>
+                        <el-switch
+                          @change="getUserChatSessions"
+                          v-model="hasOrange">
+                        </el-switch>
                         <el-button icon="el-icon-setting" @click="seeAll" :disabled="!selectedChatSessionInfo.sessionName">查看全部</el-button>
                         <el-button icon="el-icon-check" type="success" @click="confirmEdit" v-if="isMultiSelectionMode">确定</el-button>
                         <el-button icon="el-icon-close" @click="cancelEdit" v-if="isMultiSelectionMode">取消</el-button>
@@ -131,6 +156,14 @@
           length: 0,
         };
       },
+      orangeContacts() {
+        const REG = /小橙子/;
+        const orangeContacts = this.allContacts.filter(contact => REG.test(contact.dbContactRemark));
+        return orangeContacts.map(contact => ({
+          userName: contact.userName,
+          nickName: WechatService.parseName(contact.dbContactRemark),
+        }));
+      },
     },
     data() {
       return {
@@ -142,6 +175,7 @@
         contacts: [],
         debounceId: '',
         bugMessages: [],
+        hasOrange: true,
       };
     },
     watch: {
@@ -281,6 +315,21 @@
         this.$store.commit('MULTI_SELECTION_MODE_OFF');
         this.$store.commit('MULTI_SELECTION_CLEAR_SELECTION');
         this.$store.commit('MULTI_SELECTION_CLEAR_TITLE');
+      },
+      getUserChatSessions() {
+        const loadingInstance = Loading.service({ fullscreen: true, target: '#searchPage' });
+        WechatService.getUserChatSessions(WechatService.getMessageFileID(),
+          this.hasOrange ? [] : this.orangeContacts)
+          .then((chatSessions) => {
+            this.$store.commit('INIT_CHAT_SESSIONS', {
+              allChatSessions: chatSessions,
+            });
+            this.$nextTick(() => {
+              this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
+              this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
+            });
+            loadingInstance.close();
+          });
       },
     },
     mounted() {
