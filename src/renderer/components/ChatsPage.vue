@@ -63,10 +63,23 @@
                 <div class="ichat-detail-h-w">
                   <div class="ichat-header">
                     <div class="ichat-header-user">
-                      <h2 :title="selectedChatSessionInfo.displayName">
-                        {{selectedChatSessionInfo.displayName}}
-                        <span>({{selectedChatSessionInfo.length}})</span>
-                      </h2>
+                      <el-popover
+                        placement="bottom"
+                        width="400"
+                        trigger="hover">
+                        <div class="block">
+                          <span class="demonstration">默认7天前</span>
+                          <el-date-picker
+                            v-model="severalDaysAgo"
+                            type="date"
+                            placeholder="选择日期">
+                          </el-date-picker>
+                        </div>
+                        <h2 slot="reference" :title="selectedChatSessionInfo.displayName">
+                          {{selectedChatSessionInfo.displayName}}
+                          <span>({{selectedChatSessionInfo.length}})</span>
+                        </h2>
+                      </el-popover>
                       <div class="operations">
                         <el-popover
                           placement="top-start"
@@ -176,6 +189,7 @@
         debounceId: '',
         bugMessages: [],
         hasOrange: true,
+        severalDaysAgo: WechatService.sevenDaysAgo(),
       };
     },
     watch: {
@@ -184,6 +198,13 @@
           this.loadChatSessionData(); // 数据加载有些迟，在这里主动调一次
           this.viewChatsOf(this.selectedChatSessionInfo.sessionName);
         }
+      },
+      severalDaysAgo(newValue) {
+        const sevenDaysAgo = newValue.getTime() / 1000;
+        this.chats = this.allChats.filter(chat => chat.CreateTime >= sevenDaysAgo); // 7天前
+        setTimeout(() => {
+          this.$refs['ichatMessagesRef'].scrollTop = document.querySelector('.ichat-messages-wrapper').clientHeight; // eslint-disable-line
+        }, 500);
       },
     },
     methods: {
@@ -208,7 +229,7 @@
         WechatService.loadChatsOf(chatSessionName)
           .then((chats) => {
             this.allChats = chats;
-            const sevenDaysAgo = WechatService.sevenDaysAgo();
+            const sevenDaysAgo = this.severalDaysAgo.getTime() / 1000;
             this.chats = chats.filter(chat => chat.CreateTime >= sevenDaysAgo); // 7天前
             this.$store.commit('LAST_CHAT_SESSION_INFO', {
               sessionName: chatSessionName,

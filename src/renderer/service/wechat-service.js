@@ -372,7 +372,7 @@ function formatTime(CreateTime) {
 
 function sevenDaysAgo() {
   const sevenDaysAgo = moment().subtract(7, 'days');
-  return sevenDaysAgo.toDate().getTime() / 1000;
+  return sevenDaysAgo.toDate();
 }
 
 function exportContacts(contacts) {
