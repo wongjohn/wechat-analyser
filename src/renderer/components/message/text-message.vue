@@ -69,6 +69,7 @@
         module: '',
         title: this.message,
         type: '',
+        state: '',
         source: `${this.sessionInfo.displayName} - ${this.displayName}`,
         detail: this.message,
       });

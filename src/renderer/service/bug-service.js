@@ -7,6 +7,8 @@ const readFilePath = path.resolve(__dirname, 'alpha__bug_template.xlsx');
 
 const BUGS_STORE_KEY = 'BUGS';
 const MODULES_STORE_KEY = 'MODULES';
+const TYPES_STORE_KEY = 'TYPES';
+const STATES_STORE_KEY = 'STATES_STORE_KEY';
 let bugs = [];
 
 const MODULES = ['wordalpha', 'note', '安装指引', '登录', '账号', 'Chrome浏览器', '大数据',
@@ -16,14 +18,9 @@ const MODULES = ['wordalpha', 'note', '安装指引', '登录', '账号', 'Chrom
   '成就分析', '财务', '报表', '审批', '职级', '帮助中心', '设置', 'chrome插件', '系统',
   '橙信', '培训', '课程', '手机端计算器', '其他'];
 
-const TYPES = [
-  { label: '缺陷', value: '缺陷' },
-  { label: '使用问题', value: '使用问题' },
-  { label: '安装问题', value: '安装问题' },
-  { label: '需求', value: '需求' },
-  { label: '校友肯定', value: '校友肯定' },
-  { label: '其他问题', value: '其他问题' },
-];
+const TYPES = ['缺陷', '使用问题', '安装问题', '需求', '校友肯定', '其他问题'];
+
+const STATES = ['初始状态'];
 
 function exportBugs() {
   return new Promise((resolve, reject) => {
@@ -32,7 +29,7 @@ function exportBugs() {
       .then(() => {
         const worksheet = workbook.getWorksheet(1);
         bugs.forEach((bug) => {
-          worksheet.addRow([bug.module, bug.title, bug.type, bug.source, bug.detail]);
+          worksheet.addRow([bug.module, bug.title, bug.type, bug.state, bug.source, bug.detail]);
         });
         const genDir = path.resolve(os.homedir(), `Downloads/Alpha-Bugs-${(new Date()).getTime()}.xlsx`);
         workbook.xlsx.writeFile(genDir);
@@ -55,7 +52,8 @@ export default {
   },
   getBugs() {
     const storeBugs = JSON.parse(localStorage.getItem(BUGS_STORE_KEY) || '[]');
-    return storeBugs.length ? storeBugs : bugs;
+    bugs = storeBugs;
+    return storeBugs;
   },
   getModules() {
     const storeModules = JSON.parse(localStorage.getItem(MODULES_STORE_KEY) || '[]');
@@ -65,6 +63,17 @@ export default {
     localStorage.setItem(MODULES_STORE_KEY, JSON.stringify(modules));
   },
   getTypes() {
-    return TYPES;
+    const storeTypes = JSON.parse(localStorage.getItem(TYPES_STORE_KEY) || '[]');
+    return storeTypes.length ? storeTypes : TYPES;
+  },
+  setTypes(types) {
+    localStorage.setItem(TYPES_STORE_KEY, JSON.stringify(types));
+  },
+  getStates() {
+    const storeStates = JSON.parse(localStorage.getItem(STATES_STORE_KEY) || '[]');
+    return storeStates.length ? storeStates : STATES;
+  },
+  setStates(states) {
+    localStorage.setItem(STATES_STORE_KEY, JSON.stringify(states));
   },
 };

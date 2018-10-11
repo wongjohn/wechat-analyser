@@ -324,6 +324,7 @@
           module: '',
           title,
           type: '',
+          state: '',
           source,
           detail: message,
         });

@@ -24,22 +24,78 @@
                               v-for="tag in alphaModules"
                               closable
                               :disable-transitions="false"
-                              @close="handleCloseTag(tag)">
+                              @close="handleCloseModule(tag)">
                               {{tag}}
                             </el-tag>
                             <el-input
                               class="input-new-tag"
-                              v-if="inputVisible"
-                              v-model="inputValue"
-                              ref="saveTagInput"
+                              v-if="moduleInputVisible"
+                              v-model="moduleInputValue"
+                              ref="saveTagInputModule"
                               size="small"
-                              @keyup.enter.native="handleInputConfirm"
-                              @blur="handleInputConfirm"
+                              @keyup.enter.native="handleInputConfirmModule"
+                              @blur="handleInputConfirmModule"
                             >
                             </el-input>
-                            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 新增模块</el-button>
+                            <el-button v-else class="button-new-tag" size="small" @click="showInputModule">+ 新增模块</el-button>
                           </div>
                           <el-button slot="reference">模块维护</el-button>
+                        </el-popover>
+                        <el-popover
+                          placement="top-start"
+                          width="400"
+                          trigger="hover"
+                        >
+                          <div style="max-height: 400px; overflow-y: auto;">
+                            <el-tag
+                              :key="tag"
+                              v-for="tag in alphaTypes"
+                              closable
+                              :disable-transitions="false"
+                              @close="handleCloseType(tag)">
+                              {{tag}}
+                            </el-tag>
+                            <el-input
+                              class="input-new-tag"
+                              v-if="typeInputVisible"
+                              v-model="typeInputValue"
+                              ref="saveTagInputType"
+                              size="small"
+                              @keyup.enter.native="handleInputConfirmType"
+                              @blur="handleInputConfirmType"
+                            >
+                            </el-input>
+                            <el-button v-else class="button-new-tag" size="small" @click="showInputType">+ 新增类别</el-button>
+                          </div>
+                          <el-button slot="reference">类别维护</el-button>
+                        </el-popover>
+                        <el-popover
+                          placement="top-start"
+                          width="400"
+                          trigger="hover"
+                        >
+                          <div style="max-height: 400px; overflow-y: auto;">
+                            <el-tag
+                              :key="tag"
+                              v-for="tag in alphaStates"
+                              closable
+                              :disable-transitions="false"
+                              @close="handleCloseState(tag)">
+                              {{tag}}
+                            </el-tag>
+                            <el-input
+                              class="input-new-tag"
+                              v-if="stateInputVisible"
+                              v-model="stateInputValue"
+                              ref="saveTagInputState"
+                              size="small"
+                              @keyup.enter.native="handleInputConfirmState"
+                              @blur="handleInputConfirmState"
+                            >
+                            </el-input>
+                            <el-button v-else class="button-new-tag" size="small" @click="showInputState">+ 新增状态</el-button>
+                          </div>
+                          <el-button slot="reference">状态维护</el-button>
                         </el-popover>
                         <el-button icon="el-icon-download" type="primary" @click="exportBugs" :disabled="!bugs.length">导出Bug列表</el-button>
                       </div>
@@ -73,6 +129,14 @@
                               <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                             <span v-else>{{ scope.row.type }}</span>
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="type" label="状态">
+                          <template slot-scope="scope">
+                            <el-select v-if="scope.row.$$editable" filterable allow-create v-model="scope.row.state" placeholder="请选择状态">
+                              <el-option v-for="item in states" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            </el-select>
+                            <span v-else>{{ scope.row.state }}</span>
                           </template>
                         </el-table-column>
                         <el-table-column prop="source" label="来源">
@@ -115,15 +179,26 @@
     data() {
       return {
         bugs: bugService.getBugs(),
-        types: bugService.getTypes(),
         alphaModules: bugService.getModules(),
-        inputVisible: false,
-        inputValue: '',
+        moduleInputVisible: false,
+        moduleInputValue: '',
+        alphaTypes: bugService.getTypes(),
+        typeInputVisible: false,
+        typeInputValue: '',
+        alphaStates: bugService.getStates(),
+        stateInputVisible: false,
+        stateInputValue: '',
       };
     },
     computed: {
       modules() {
         return this.alphaModules.map(module => ({ label: module, value: module }));
+      },
+      types() {
+        return this.alphaTypes.map(type => ({ label: type, value: type }));
+      },
+      states() {
+        return this.alphaStates.map(state => ({ label: state, value: state }));
       },
     },
     methods: {
@@ -145,25 +220,62 @@
       handleClose(row) {
         this.$set(row, '$$editable', false);
       },
-      handleCloseTag(tag) {
+      handleCloseModule(tag) {
         this.alphaModules.splice(this.alphaModules.indexOf(tag), 1);
         bugService.setModules(this.alphaModules);
       },
-      showInput() {
-        this.inputVisible = true;
+      showInputModule() {
+        this.moduleInputVisible = true;
         this.$nextTick(() => {
-          this.$refs.saveTagInput.$refs.input.focus();
+          this.$refs.saveTagInputModule.$refs.input.focus();
         });
       },
-
-      handleInputConfirm() {
-        const inputValue = this.inputValue;
+      handleInputConfirmModule() {
+        const inputValue = this.moduleInputValue;
         if (inputValue) {
           this.alphaModules.push(inputValue);
           bugService.setModules(this.alphaModules);
         }
-        this.inputVisible = false;
-        this.inputValue = '';
+        this.moduleInputVisible = false;
+        this.moduleInputValue = '';
+      },
+      handleCloseType(tag) {
+        this.alphaTypes.splice(this.alphaTypes.indexOf(tag), 1);
+        bugService.setTypes(this.alphaTypes);
+      },
+      showInputType() {
+        this.typeInputVisible = true;
+        this.$nextTick(() => {
+          this.$refs.saveTagInputType.$refs.input.focus();
+        });
+      },
+      handleInputConfirmType() {
+        const inputValue = this.typeInputValue;
+        if (inputValue) {
+          this.alphaTypes.push(inputValue);
+          bugService.setTypes(this.alphaTypes);
+        }
+        this.typeInputVisible = false;
+        this.typeInputValue = '';
+      },
+      handleCloseState(tag) {
+        this.alphaStates.splice(this.alphaStates.indexOf(tag), 1);
+        bugService.setModules(this.alphaStates);
+      },
+      showInputState() {
+        this.stateInputVisible = true;
+        this.$nextTick(() => {
+          this.$refs.saveTagInputState.$refs.input.focus();
+        });
+      },
+      handleInputConfirmState() {
+        const inputValue = this.stateInputValue;
+        if (inputValue) {
+          this.alphaStates.push(inputValue);
+          bugService.setStates(this.alphaStates);
+        }
+        this.stateInputVisible = false;
+        this.stateInputValue = '';
       },
     },
     mounted() {
