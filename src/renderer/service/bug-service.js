@@ -55,6 +55,9 @@ export default {
     bugs = storeBugs;
     return storeBugs;
   },
+  setBugs(bugs) {
+    localStorage.setItem(BUGS_STORE_KEY, JSON.stringify(bugs));
+  },
   getModules() {
     const storeModules = JSON.parse(localStorage.getItem(MODULES_STORE_KEY) || '[]');
     return storeModules.length ? storeModules : MODULES;

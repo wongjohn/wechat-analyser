@@ -219,6 +219,7 @@
       },
       handleClose(row) {
         this.$set(row, '$$editable', false);
+        bugService.setBugs(this.bugs);
       },
       handleCloseModule(tag) {
         this.alphaModules.splice(this.alphaModules.indexOf(tag), 1);
