@@ -13,6 +13,34 @@
                         Bug列表
                       </h2>
                       <div class="operations">
+                        <el-popover
+                          placement="top-start"
+                          width="400"
+                          trigger="hover"
+                        >
+                          <div style="max-height: 400px; overflow-y: auto;">
+                            <el-tag
+                              :key="tag"
+                              v-for="tag in alphaModules"
+                              closable
+                              :disable-transitions="false"
+                              @close="handleCloseTag(tag)">
+                              {{tag}}
+                            </el-tag>
+                            <el-input
+                              class="input-new-tag"
+                              v-if="inputVisible"
+                              v-model="inputValue"
+                              ref="saveTagInput"
+                              size="small"
+                              @keyup.enter.native="handleInputConfirm"
+                              @blur="handleInputConfirm"
+                            >
+                            </el-input>
+                            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ 新增模块</el-button>
+                          </div>
+                          <el-button slot="reference">模块维护</el-button>
+                        </el-popover>
                         <el-button icon="el-icon-download" type="primary" @click="exportBugs" :disabled="!bugs.length">导出Bug列表</el-button>
                       </div>
                     </div>
@@ -87,9 +115,16 @@
     data() {
       return {
         bugs: bugService.getBugs(),
-        modules: bugService.getModules(),
         types: bugService.getTypes(),
+        alphaModules: bugService.getModules(),
+        inputVisible: false,
+        inputValue: '',
       };
+    },
+    computed: {
+      modules() {
+        return this.alphaModules.map(module => ({ label: module, value: module }));
+      },
     },
     methods: {
       exportBugs() {
@@ -110,6 +145,26 @@
       handleClose(row) {
         this.$set(row, '$$editable', false);
       },
+      handleCloseTag(tag) {
+        this.alphaModules.splice(this.alphaModules.indexOf(tag), 1);
+        bugService.setModules(this.alphaModules);
+      },
+      showInput() {
+        this.inputVisible = true;
+        this.$nextTick(() => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+      },
+
+      handleInputConfirm() {
+        const inputValue = this.inputValue;
+        if (inputValue) {
+          this.alphaModules.push(inputValue);
+          bugService.setModules(this.alphaModules);
+        }
+        this.inputVisible = false;
+        this.inputValue = '';
+      },
     },
     mounted() {
       if (!WechatService.getSelectedBackupPath()) { // 如果没有选择目录
@@ -125,5 +180,21 @@
   }
   .bugs-page-main .detail-description {
     white-space: pre-line;
+  }
+  .el-tag + .el-tag {
+    margin-left: 10px;
+    margin-bottom: 4px;
+  }
+  .button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    width: 90px;
+    margin-left: 10px;
+    vertical-align: bottom;
   }
 </style>

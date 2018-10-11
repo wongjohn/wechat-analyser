@@ -1,6 +1,6 @@
 {
   "name": "wechat-analyser",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "author": "王士江 <wangshijiang@icourt.cc>",
   "description": "微信聊天记录查看、分析工具。",
   "license": "MIT",
